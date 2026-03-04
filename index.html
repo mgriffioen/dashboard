@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>COMMAND CENTRAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #0d1b2e;
+      --navy2:  #122340;
+      --amber:  #e8a020;
+      --amber2: #f5c842;
+      --cream:  #f2ead8;
+      --rust:   #c94e2b;
+      --teal:   #2a8a7f;
+      --dim:    #7a8fa8;
+      --card:   rgba(18,35,64,0.82);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--cream);
+      font-family: 'Josefin Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── STARFIELD ── */
+    #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ── ATOMIC GRID LINES ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(232,160,32,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,160,32,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    /* ── ORBIT RING (decorative) ── */
+    .orbit-ring {
+      position: fixed;
+      width: 700px; height: 700px;
+      border: 1px solid rgba(232,160,32,.08);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      animation: spin 80s linear infinite;
+      pointer-events: none;
+    }
+    .orbit-ring::after {
+      content: '✦';
+      position: absolute; top: -10px; left: 50%;
+      font-size: 12px; color: var(--amber);
+      opacity: .4;
+    }
+    .orbit-ring2 {
+      width: 1100px; height: 1100px;
+      animation-duration: 140s;
+      animation-direction: reverse;
+    }
+    @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+    /* ── LAYOUT ── */
+    .shell {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0;
+    }
+
+
+
+    /* ── MAIN GRID ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+      padding: 24px 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .main-grid { grid-template-columns: 1fr 1fr; }
+      .card.calendar { grid-column: 1 / -1; }
+    }
+    @media (max-width: 680px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(232,160,32,.18);
+      border-radius: 2px;
+      padding: 20px 22px;
+      backdrop-filter: blur(8px);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+      opacity: .6;
+    }
+    .card-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .3em;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      opacity: .75;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-label::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(232,160,32,.3), transparent);
+    }
+
+    /* ── CLOCK ── */
+    .clock-face {
+      text-align: center;
+    }
+    #clock-time {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.2rem, 8vw, 5.5rem);
+      color: var(--amber2);
+      letter-spacing: .06em;
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(245,200,66,.4);
+      display: block;
+    }
+    #clock-seconds {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .85rem;
+      color: var(--amber);
+      opacity: .6;
+      display: block;
+      margin-top: 2px;
+    }
+    #clock-date {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--cream);
+      margin-top: 8px;
+      opacity: .85;
+    }
+    #clock-day {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: .2em;
+      color: var(--rust);
+      margin-top: 2px;
+    }
+
+    /* ── WEATHER ── */
+    .weather-main {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .weather-icon {
+      font-size: 3rem;
+      filter: drop-shadow(0 0 12px rgba(232,160,32,.4));
+    }
+    .weather-temp {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.2rem;
+      color: var(--amber2);
+      line-height: 1;
+    }
+    .weather-unit {
+      font-size: 1.4rem;
+      color: var(--dim);
+    }
+    .weather-desc {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: .95rem;
+      color: var(--cream);
+      margin-top: 2px;
+    }
+    .weather-loc {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .6rem;
+      color: var(--dim);
+      letter-spacing: .12em;
+      margin-top: 4px;
+    }
+    .weather-details {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-top: 14px;
+      border-top: 1px solid rgba(232,160,32,.12);
+      padding-top: 12px;
+    }
+    .weather-detail {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .62rem; color: var(--dim);
+    }
+    .weather-detail strong { color: var(--cream); display: block; font-size: .8rem; }
+    #weather-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem; color: var(--dim);
+      font-style: italic;
+    }
+
+    /* ── CALENDAR ── */
+    .cal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+    .cal-month {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: .12em;
+      color: var(--amber);
+    }
+    .cal-nav button {
+      background: none; border: 1px solid rgba(232,160,32,.25);
+      color: var(--amber); cursor: pointer;
+      width: 26px; height: 26px; font-size: .8rem;
+      transition: background .2s;
+    }
+    .cal-nav button:hover { background: rgba(232,160,32,.15); }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 3px; text-align: center;
+    }
+    .cal-dow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .55rem; color: var(--dim);
+      letter-spacing: .1em; padding: 4px 0;
+    }
+    .cal-day {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: .75rem;
+      padding: 5px 2px;
+      border-radius: 2px;
+      cursor: default;
+      transition: background .15s;
+      position: relative;
+    }
+    .cal-day.other-month { opacity: .2; }
+    .cal-day.today {
+      background: var(--amber);
+      color: var(--navy);
+      font-weight: 700;
+    }
+    .cal-day.has-event::after {
+      content: '·';
+      position: absolute; bottom: 1px; left: 50%;
+      transform: translateX(-50%);
+      color: var(--teal); font-size: 1rem; line-height: 1;
+    }
+    .cal-day.today.has-event::after { color: var(--navy); }
+
+    .cal-events {
+      margin-top: 14px;
+      border-top: 1px solid rgba(232,160,32,.12);
+      padding-top: 10px;
+      max-height: 130px; overflow-y: auto;
+    }
+    .cal-events::-webkit-scrollbar { width: 3px; }
+    .cal-events::-webkit-scrollbar-thumb { background: var(--amber); opacity: .4; }
+
+    .cal-event-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: .78rem;
+    }
+    .cal-event-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .6rem; color: var(--amber);
+      min-width: 56px; padding-top: 2px;
+    }
+    .cal-event-title { color: var(--cream); line-height: 1.3; }
+    #cal-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem; color: var(--dim); font-style: italic;
+    }
+    #connect-gcal {
+      display: inline-block;
+      margin-top: 10px;
+      background: none;
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .12em;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    #connect-gcal:hover { background: var(--amber); color: var(--navy); }
+
+    /* ── COUNTDOWNS ── */
+    .countdown-list { display: flex; flex-direction: column; gap: 14px; }
+    .countdown-item {
+      border: 1px solid rgba(232,160,32,.14);
+      padding: 12px 14px;
+      border-radius: 2px;
+      background: rgba(13,27,46,.5);
+      position: relative;
+    }
+    .countdown-name {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: .75rem; letter-spacing: .12em;
+      color: var(--cream); text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .countdown-digits {
+      display: flex; gap: 8px; align-items: flex-end;
+    }
+    .countdown-unit {
+      text-align: center;
+    }
+    .countdown-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.9rem; line-height: 1;
+      color: var(--amber2);
+      text-shadow: 0 0 14px rgba(245,200,66,.35);
+    }
+    .countdown-lbl {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .45rem; color: var(--dim);
+      letter-spacing: .1em; display: block; margin-top: 2px;
+    }
+    .countdown-sep {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem; color: var(--amber); opacity: .35;
+      padding-bottom: 6px;
+    }
+    .countdown-delete {
+      position: absolute; top: 8px; right: 8px;
+      background: none; border: none;
+      color: var(--dim); cursor: pointer; font-size: .8rem;
+      opacity: .4; transition: opacity .2s;
+    }
+    .countdown-delete:hover { opacity: 1; color: var(--rust); }
+    .add-countdown {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-top: 10px; border-top: 1px solid rgba(232,160,32,.12); padding-top: 12px;
+    }
+    .add-countdown input {
+      background: rgba(13,27,46,.8);
+      border: 1px solid rgba(232,160,32,.2);
+      color: var(--cream);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .72rem;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .add-countdown input:focus { border-color: var(--amber); }
+    .add-countdown input::placeholder { color: var(--dim); opacity: .6; }
+    .add-countdown button {
+      background: rgba(232,160,32,.12);
+      border: 1px solid rgba(232,160,32,.3);
+      color: var(--amber);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .62rem; letter-spacing: .15em;
+      padding: 7px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .add-countdown button:hover { background: rgba(232,160,32,.25); }
+
+    /* ── TODO ── */
+    .todo-input-row {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .todo-input-row input {
+      flex: 1;
+      background: rgba(13,27,46,.8);
+      border: 1px solid rgba(232,160,32,.2);
+      color: var(--cream);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: .82rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .todo-input-row input:focus { border-color: var(--amber); }
+    .todo-input-row input::placeholder { color: var(--dim); opacity: .6; }
+    .todo-input-row button {
+      background: rgba(232,160,32,.15);
+      border: 1px solid rgba(232,160,32,.35);
+      color: var(--amber);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem; letter-spacing: .1em;
+      padding: 0 14px; cursor: pointer;
+      transition: background .2s;
+    }
+    .todo-input-row button:hover { background: rgba(232,160,32,.3); }
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .todo-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 2px;
+      background: rgba(13,27,46,.4);
+      transition: opacity .2s;
+    }
+    .todo-item.done { opacity: .4; }
+    .todo-check {
+      width: 16px; height: 16px;
+      border: 1px solid rgba(232,160,32,.4);
+      border-radius: 50%;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s;
+    }
+    .todo-check.checked { background: var(--amber); border-color: var(--amber); }
+    .todo-check.checked::after { content: '✓'; font-size: .6rem; color: var(--navy); }
+    .todo-text {
+      flex: 1; font-size: .82rem; color: var(--cream);
+      cursor: default; line-height: 1.3;
+    }
+    .todo-item.done .todo-text { text-decoration: line-through; color: var(--dim); }
+    .todo-del {
+      background: none; border: none;
+      color: var(--dim); cursor: pointer; font-size: .75rem;
+      opacity: 0; transition: opacity .2s;
+    }
+    .todo-item:hover .todo-del { opacity: .6; }
+    .todo-del:hover { color: var(--rust) !important; opacity: 1 !important; }
+    .todo-footer {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .6rem; color: var(--dim);
+      margin-top: 12px; display: flex; justify-content: space-between;
+    }
+    .todo-clear {
+      background: none; border: none;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .6rem; color: var(--dim);
+      cursor: pointer; text-decoration: underline;
+    }
+    .todo-clear:hover { color: var(--rust); }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 14px 24px;
+      border-top: 1px solid rgba(232,160,32,.1);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .22em;
+      color: var(--dim);
+      opacity: .5;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: none; } }
+    .card { animation: fadeIn .6s ease both; }
+    .card:nth-child(1) { animation-delay: .05s; }
+    .card:nth-child(2) { animation-delay: .12s; }
+    .card:nth-child(3) { animation-delay: .18s; }
+    .card:nth-child(4) { animation-delay: .24s; }
+    .card:nth-child(5) { animation-delay: .30s; }
+  </style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<div class="orbit-ring"></div>
+<div class="orbit-ring orbit-ring2"></div>
+
+<div class="shell">
+
+  <!-- MAIN GRID -->
+  <main class="main-grid">
+
+    <!-- CLOCK -->
+    <div class="card">
+      <div class="card-label">◉ Local Time</div>
+      <div class="clock-face">
+        <span id="clock-time">00:00</span>
+        <span id="clock-seconds">:00</span>
+        <div id="clock-date">January 1st, 2025</div>
+        <div id="clock-day">Wednesday</div>
+      </div>
+    </div>
+
+    <!-- WEATHER -->
+    <div class="card">
+      <div class="card-label">◉ Atmospheric Conditions</div>
+      <div id="weather-content">
+        <div id="weather-status">Acquiring satellite signal…</div>
+      </div>
+    </div>
+
+    <!-- TODO -->
+    <div class="card">
+      <div class="card-label">◉ Mission Objectives</div>
+      <div class="todo-input-row">
+        <input type="text" id="todo-input" placeholder="Add objective…" maxlength="120"/>
+        <button onclick="addTodo()">ADD</button>
+      </div>
+      <ul class="todo-list" id="todo-list"></ul>
+      <div class="todo-footer">
+        <span id="todo-count">0 remaining</span>
+        <button class="todo-clear" onclick="clearDone()">Clear completed</button>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="card calendar" style="grid-column: 1 / 3;">
+      <div class="card-label">◉ Schedule</div>
+      <div id="cal-status">
+        <p style="margin-bottom:10px;font-size:.8rem;color:var(--dim);font-family:'Josefin Sans',sans-serif;">Connect Google Calendar to display your events.</p>
+        <button id="connect-gcal" onclick="connectGCal()">⊕ &nbsp; CONNECT GOOGLE CALENDAR</button>
+      </div>
+      <div id="cal-container" style="display:none;">
+        <div class="cal-header">
+          <div class="cal-month" id="cal-month-label">JANUARY 2025</div>
+          <div class="cal-nav">
+            <button onclick="changeMonth(-1)">‹</button>
+            <button onclick="changeMonth(1)">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-events" id="cal-events"></div>
+      </div>
+    </div>
+
+    <!-- COUNTDOWNS -->
+    <div class="card">
+      <div class="card-label">◉ Mission Countdowns</div>
+      <div class="countdown-list" id="countdown-list"></div>
+      <div class="add-countdown">
+        <input type="text" id="cd-name" placeholder="Event name…" maxlength="40"/>
+        <input type="datetime-local" id="cd-date"/>
+        <button onclick="addCountdown()">⊕ &nbsp; ADD COUNTDOWN</button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">◈ &nbsp; COMMAND CENTRAL &nbsp; ◈ &nbsp; ALL SYSTEMS NOMINAL &nbsp; ◈</footer>
+</div>
+
+<script>
+/* ───────────────── STARFIELD ───────────────── */
+(function(){
+  const c = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let W, H, stars;
+  function init(){
+    W = c.width = window.innerWidth;
+    H = c.height = window.innerHeight;
+    stars = Array.from({length:180}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      r: Math.random()*1.4+.3,
+      a: Math.random(), da: (Math.random()-.5)*.005
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.a = Math.max(.1, Math.min(1, s.a+s.da));
+      if(s.a<=.1||s.a>=1) s.da*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(242,234,216,${s.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', init);
+  init(); draw();
+})();
+
+/* ───────────────── CLOCK ───────────────── */
+function updateClock(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock-time').textContent = `${h}:${m}`;
+  document.getElementById('clock-seconds').textContent = `:${s}`;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const d = now.getDate();
+  const suffix = ['th','st','nd','rd'][(d%10<4&&Math.floor(d/10)!==1)?d%10:0] || 'th';
+  document.getElementById('clock-date').textContent = `${months[now.getMonth()]} ${d}${suffix}, ${now.getFullYear()}`;
+  document.getElementById('clock-day').textContent = days[now.getDay()];
+
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ───────────────── WEATHER ───────────────── */
+const WMO = {
+  0:'Clear Skies', 1:'Mostly Clear', 2:'Partly Cloudy', 3:'Overcast',
+  45:'Foggy', 48:'Rime Fog', 51:'Light Drizzle', 53:'Drizzle', 55:'Heavy Drizzle',
+  61:'Light Rain', 63:'Rain', 65:'Heavy Rain', 71:'Light Snow', 73:'Snow', 75:'Heavy Snow',
+  77:'Snow Grains', 80:'Light Showers', 81:'Showers', 82:'Violent Showers',
+  85:'Snow Showers', 86:'Heavy Snow Showers', 95:'Thunderstorm', 96:'Thunderstorm w/ Hail', 99:'Severe Thunderstorm'
+};
+const WMO_ICON = {
+  0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+  45:'🌫️', 48:'🌫️', 51:'🌦️', 53:'🌦️', 55:'🌧️',
+  61:'🌧️', 63:'🌧️', 65:'🌧️', 71:'🌨️', 73:'❄️', 75:'❄️',
+  77:'🌨️', 80:'🌦️', 81:'🌧️', 82:'⛈️',
+  85:'🌨️', 86:'❄️', 95:'⛈️', 96:'⛈️', 99:'⛈️'
+};
+
+function displayWeather(data, city){
+  const c = data.current;
+  const wc = c.weather_code;
+  document.getElementById('weather-content').innerHTML = `
+    <div class="weather-main">
+      <div class="weather-icon">${WMO_ICON[wc]||'🌡️'}</div>
+      <div>
+        <div class="weather-temp">${Math.round(c.temperature_2m)}<span class="weather-unit">°F</span></div>
+        <div class="weather-desc">${WMO[wc]||'Unknown'}</div>
+        <div class="weather-loc">◈ ${city}</div>
+      </div>
+    </div>
+    <div class="weather-details">
+      <div class="weather-detail"><strong>${Math.round(c.apparent_temperature)}°F</strong>Feels Like</div>
+      <div class="weather-detail"><strong>${c.relative_humidity_2m}%</strong>Humidity</div>
+      <div class="weather-detail"><strong>${Math.round(c.wind_speed_10m)} mph</strong>Wind</div>
+      <div class="weather-detail"><strong>${c.precipitation_probability_max ?? data.hourly?.precipitation_probability?.[0] ?? '--'}%</strong>Precip. Chance</div>
+    </div>
+  `;
+}
+
+async function fetchWeather(lat, lon){
+  try {
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const geo = await geoRes.json();
+    const city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.county || 'Your Location';
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability_max&hourly=precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+    const res = await fetch(url);
+    const data = await res.json();
+    displayWeather(data, city);
+
+    setInterval(async ()=>{
+      const r2 = await fetch(url);
+      const d2 = await r2.json();
+      displayWeather(d2, city);
+    }, 10*60*1000);
+  } catch(e) {
+    document.getElementById('weather-content').innerHTML = '<div id="weather-status">Weather data unavailable.</div>';
+  }
+}
+
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(
+    pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+    ()  => {
+      document.getElementById('weather-content').innerHTML = `<div id="weather-status">Location access denied.<br>Enable location permissions to view weather.</div>`;
+    }
+  );
+} else {
+  document.getElementById('weather-content').innerHTML = `<div id="weather-status">Geolocation not supported.</div>`;
+}
+
+/* ───────────────── CALENDAR ───────────────── */
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calEvents = [];
+
+const GCAL_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE';
+const GCAL_SCOPES    = 'https://www.googleapis.com/auth/calendar.readonly';
+
+function connectGCal(){
+  if(!window.gapi){
+    // Load Google API script dynamically
+    const s = document.createElement('script');
+    s.src = 'https://apis.google.com/js/api.js';
+    s.onload = () => {
+      gapi.load('client:auth2', () => {
+        gapi.client.init({
+          clientId: GCAL_CLIENT_ID,
+          scope: GCAL_SCOPES,
+          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']
+        }).then(() => {
+          if(!gapi.auth2.getAuthInstance().isSignedIn.get()){
+            gapi.auth2.getAuthInstance().signIn().then(fetchCalEvents);
+          } else { fetchCalEvents(); }
+        }).catch(() => showCalPlaceholder());
+      });
+    };
+    document.head.appendChild(s);
+  } else {
+    if(!gapi.auth2.getAuthInstance().isSignedIn.get()){
+      gapi.auth2.getAuthInstance().signIn().then(fetchCalEvents);
+    } else { fetchCalEvents(); }
+  }
+}
+
+async function fetchCalEvents(){
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const end   = new Date(now.getFullYear(), now.getMonth()+2, 0).toISOString();
+    const res = await gapi.client.calendar.events.list({
+      calendarId: 'primary', timeMin: start, timeMax: end,
+      singleEvents: true, orderBy: 'startTime', maxResults: 50
+    });
+    calEvents = res.result.items || [];
+    document.getElementById('cal-status').style.display = 'none';
+    document.getElementById('cal-container').style.display = 'block';
+    renderCalendar();
+  } catch(e) { showCalPlaceholder(); }
+}
+
+function showCalPlaceholder(){
+  // Show demo events if Google Cal not connected
+  calEvents = [];
+  document.getElementById('cal-status').style.display = 'none';
+  document.getElementById('cal-container').style.display = 'block';
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  document.getElementById('cal-month-label').textContent = `${months[calMonth]} ${calYear}`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['SUN','MON','TUE','WED','THU','FRI','SAT'].forEach(d=>{
+    const el = document.createElement('div');
+    el.className='cal-dow'; el.textContent=d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const prevDays = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+
+  const eventDays = new Set(calEvents.map(e=>{
+    const d = new Date((e.start.dateTime||e.start.date));
+    if(d.getMonth()===calMonth && d.getFullYear()===calYear) return d.getDate();
+  }).filter(Boolean));
+
+  for(let i=0; i<firstDay; i++){
+    const el = document.createElement('div');
+    el.className='cal-day other-month';
+    el.textContent = prevDays - firstDay + 1 + i;
+    grid.appendChild(el);
+  }
+  for(let d=1; d<=daysInMonth; d++){
+    const el = document.createElement('div');
+    el.className='cal-day';
+    el.textContent = d;
+    if(d===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear()) el.classList.add('today');
+    if(eventDays.has(d)) el.classList.add('has-event');
+    grid.appendChild(el);
+  }
+  const remaining = 42 - firstDay - daysInMonth;
+  for(let i=1; i<=remaining; i++){
+    const el = document.createElement('div');
+    el.className='cal-day other-month'; el.textContent=i;
+    grid.appendChild(el);
+  }
+
+  // Upcoming events list
+  const evContainer = document.getElementById('cal-events');
+  const upcoming = calEvents
+    .filter(e => new Date((e.start.dateTime||e.start.date)) >= new Date())
+    .slice(0,8);
+
+  if(upcoming.length===0){
+    evContainer.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:.65rem;color:var(--dim);font-style:italic;">No upcoming events on record.</div>';
+  } else {
+    evContainer.innerHTML = upcoming.map(e=>{
+      const d = new Date((e.start.dateTime||e.start.date));
+      const dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const timeStr = e.start.dateTime ? d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : 'All Day';
+      return `<div class="cal-event-item">
+        <div class="cal-event-date">${dateStr}<br>${timeStr}</div>
+        <div class="cal-event-title">${e.summary||'Untitled Event'}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function changeMonth(dir){
+  calMonth += dir;
+  if(calMonth<0){ calMonth=11; calYear--; }
+  if(calMonth>11){ calMonth=0; calYear++; }
+  renderCalendar();
+}
+
+// Show calendar grid immediately (without events)
+showCalPlaceholder();
+
+/* ───────────────── COUNTDOWNS ───────────────── */
+let countdowns = JSON.parse(localStorage.getItem('cd_events')||'[]');
+
+function saveCountdowns(){ localStorage.setItem('cd_events', JSON.stringify(countdowns)); }
+
+function renderCountdowns(){
+  const list = document.getElementById('countdown-list');
+  if(countdowns.length===0){
+    list.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:.65rem;color:var(--dim);font-style:italic;">No missions scheduled.</div>';
+    return;
+  }
+  list.innerHTML = countdowns.map((cd,i)=>`
+    <div class="countdown-item" id="cd-item-${i}"> 
+      <div class="countdown-name">${cd.name}</div>
+      <div class="countdown-digits" id="cd-digits-${i}"></div>
+      <button class="countdown-delete" onclick="deleteCountdown(${i})">✕</button>
+    </div>
+  `).join('');
+  updateCountdownTimes();
+}
+
+function updateCountdownTimes(){
+  const now = Date.now();
+  countdowns.forEach((cd,i)=>{
+    const el = document.getElementById(`cd-digits-${i}`);
+    if(!el) return;
+    const diff = Math.max(0, new Date(cd.date) - now);
+    if(diff===0){ el.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--amber)">MISSION REACHED</div>`; return; }
+    const days = Math.floor(diff/864e5);
+    const hrs  = Math.floor((diff%864e5)/36e5);
+    const mins = Math.floor((diff%36e5)/6e4);
+    const secs = Math.floor((diff%6e4)/1e3);
+    el.innerHTML = [
+      {n:days,l:'DAYS'},{n:hrs,l:'HRS'},{n:mins,l:'MIN'},{n:secs,l:'SEC'}
+    ].map((u,j)=>`
+      <div class="countdown-unit">
+        <div class="countdown-num">${String(u.n).padStart(2,'0')}</div>
+        <span class="countdown-lbl">${u.l}</span>
+      </div>${j<3?'<div class="countdown-sep">:</div>':''}
+    `).join('');
+  });
+}
+
+function addCountdown(){
+  const name = document.getElementById('cd-name').value.trim();
+  const date = document.getElementById('cd-date').value;
+  if(!name||!date) return;
+  countdowns.push({name, date});
+  saveCountdowns();
+  renderCountdowns();
+  document.getElementById('cd-name').value='';
+  document.getElementById('cd-date').value='';
+}
+
+function deleteCountdown(i){
+  countdowns.splice(i,1);
+  saveCountdowns();
+  renderCountdowns();
+}
+
+setInterval(updateCountdownTimes, 1000);
+renderCountdowns();
+
+/* ───────────────── ENTER KEY FOR COUNTDOWNS ───────────────── */
+document.getElementById('cd-date').addEventListener('keydown', e=>{ if(e.key==='Enter') addCountdown(); });
+document.getElementById('cd-name').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('cd-date').focus(); });
+
+/* ───────────────── TODO ───────────────── */
+let todos = JSON.parse(localStorage.getItem('todos')||'[]');
+
+function saveTodos(){ localStorage.setItem('todos', JSON.stringify(todos)); }
+
+function renderTodos(){
+  const list = document.getElementById('todo-list');
+  list.innerHTML = todos.map((t,i)=>`
+    <li class="todo-item${t.done?' done':''}">
+      <div class="todo-check${t.done?' checked':''}" onclick="toggleTodo(${i})"></div>
+      <span class="todo-text">${t.text}</span>
+      <button class="todo-del" onclick="deleteTodo(${i})">✕</button>
+    </li>
+  `).join('');
+  const rem = todos.filter(t=>!t.done).length;
+  document.getElementById('todo-count').textContent = `${rem} remaining`;
+}
+
+function addTodo(){
+  const input = document.getElementById('todo-input');
+  const text = input.value.trim();
+  if(!text) return;
+  todos.unshift({text, done:false});
+  saveTodos(); renderTodos();
+  input.value='';
+}
+
+function toggleTodo(i){ todos[i].done=!todos[i].done; saveTodos(); renderTodos(); }
+function deleteTodo(i){ todos.splice(i,1); saveTodos(); renderTodos(); }
+function clearDone(){ todos=todos.filter(t=>!t.done); saveTodos(); renderTodos(); }
+
+document.getElementById('todo-input').addEventListener('keydown', e=>{ if(e.key==='Enter') addTodo(); });
+renderTodos();
+</script>
+</body>
+</html>
