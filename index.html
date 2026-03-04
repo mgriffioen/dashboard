@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MARKWORLD</title>
+  <title>COMMAND CENTRAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
@@ -633,7 +633,7 @@ function displayWeather(data, city){
       <div class="weather-detail"><strong>${Math.round(c.apparent_temperature)}°F</strong>Feels Like</div>
       <div class="weather-detail"><strong>${c.relative_humidity_2m}%</strong>Humidity</div>
       <div class="weather-detail"><strong>${Math.round(c.wind_speed_10m)} mph</strong>Wind</div>
-      <div class="weather-detail"><strong>${c.precipitation_probability_max ?? data.hourly?.precipitation_probability?.[0] ?? '--'}%</strong>Precip. Chance</div>
+      <div class="weather-detail"><strong>${data.daily?.precipitation_probability_max?.[0] ?? '--'}%</strong>Precip. Chance</div>
     </div>
   `;
 }
@@ -647,7 +647,7 @@ async function fetchWeather(lat, lon){
     city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.county || 'Your Location';
   } catch(e) { /* city stays as default */ }
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability_max&hourly=precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`;
 
   try {
     const res = await fetch(url);
@@ -666,15 +666,52 @@ async function fetchWeather(lat, lon){
   }
 }
 
-if(navigator.geolocation){
+function showLocationFallback(reason){
+  document.getElementById('weather-content').innerHTML = `
+    <div id="weather-status" style="line-height:1.8">
+      <span style="color:var(--rust);font-size:.7rem;">${reason}</span><br>
+      <span style="font-size:.65rem;color:var(--dim);">Enter coordinates manually:</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+      <input id="manual-lat" placeholder="Latitude  e.g. 40.71" style="flex:1;min-width:80px;background:rgba(13,27,46,.8);border:1px solid rgba(232,160,32,.2);color:var(--cream);font-family:'Share Tech Mono',monospace;font-size:.72rem;padding:7px 8px;outline:none;">
+      <input id="manual-lon" placeholder="Longitude  e.g. -74.00" style="flex:1;min-width:80px;background:rgba(13,27,46,.8);border:1px solid rgba(232,160,32,.2);color:var(--cream);font-family:'Share Tech Mono',monospace;font-size:.72rem;padding:7px 8px;outline:none;">
+      <button onclick="manualWeather()" style="background:rgba(232,160,32,.15);border:1px solid rgba(232,160,32,.3);color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;padding:7px 10px;cursor:pointer;">GO</button>
+    </div>
+    <div style="margin-top:6px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--dim);">
+      Find yours at <span style="color:var(--amber)">latlong.net</span>
+    </div>`;
+}
+
+function manualWeather(){
+  const lat = parseFloat(document.getElementById('manual-lat').value);
+  const lon = parseFloat(document.getElementById('manual-lon').value);
+  if(isNaN(lat)||isNaN(lon)){ return; }
+  localStorage.setItem('wx_lat', lat);
+  localStorage.setItem('wx_lon', lon);
+  document.getElementById('weather-content').innerHTML = '<div id="weather-status">Acquiring signal…</div>';
+  fetchWeather(lat, lon);
+}
+
+// Try saved coords first
+const savedLat = parseFloat(localStorage.getItem('wx_lat'));
+const savedLon = parseFloat(localStorage.getItem('wx_lon'));
+if(!isNaN(savedLat) && !isNaN(savedLon)){
+  fetchWeather(savedLat, savedLon);
+} else if(navigator.geolocation){
   navigator.geolocation.getCurrentPosition(
-    pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-    ()  => {
-      document.getElementById('weather-content').innerHTML = `<div id="weather-status">Location access denied.<br>Enable location permissions to view weather.</div>`;
-    }
+    pos => {
+      localStorage.setItem('wx_lat', pos.coords.latitude);
+      localStorage.setItem('wx_lon', pos.coords.longitude);
+      fetchWeather(pos.coords.latitude, pos.coords.longitude);
+    },
+    err => {
+      const msgs = {1:'Location permission denied.', 2:'Location unavailable.', 3:'Location request timed out.'};
+      showLocationFallback(msgs[err.code] || 'Location error.');
+    },
+    { timeout: 10000, maximumAge: 300000 }
   );
 } else {
-  document.getElementById('weather-content').innerHTML = `<div id="weather-status">Geolocation not supported.</div>`;
+  showLocationFallback('Geolocation not supported in this browser.');
 }
 
 /* ───────────────── CALENDAR ───────────────── */
