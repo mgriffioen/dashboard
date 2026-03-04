@@ -639,23 +639,30 @@ function displayWeather(data, city){
 }
 
 async function fetchWeather(lat, lon){
+  // Get city name — fail gracefully
+  let city = 'Your Location';
   try {
     const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
     const geo = await geoRes.json();
-    const city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.county || 'Your Location';
+    city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.county || 'Your Location';
+  } catch(e) { /* city stays as default */ }
 
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability_max&hourly=precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability_max&hourly=precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+
+  try {
     const res = await fetch(url);
     const data = await res.json();
     displayWeather(data, city);
 
     setInterval(async ()=>{
-      const r2 = await fetch(url);
-      const d2 = await r2.json();
-      displayWeather(d2, city);
+      try {
+        const r2 = await fetch(url);
+        const d2 = await r2.json();
+        displayWeather(d2, city);
+      } catch(e) {}
     }, 10*60*1000);
   } catch(e) {
-    document.getElementById('weather-content').innerHTML = '<div id="weather-status">Weather data unavailable.</div>';
+    document.getElementById('weather-content').innerHTML = '<div id="weather-status">Weather data unavailable.<br><small style="font-size:.6rem;opacity:.6">Check location permissions in your browser.</small></div>';
   }
 }
 
@@ -814,7 +821,7 @@ function renderCountdowns(){
     return;
   }
   list.innerHTML = countdowns.map((cd,i)=>`
-    <div class="countdown-item" id="cd-item-${i}"> 
+    <div class="countdown-item" id="cd-item-${i}">
       <div class="countdown-name">${cd.name}</div>
       <div class="countdown-digits" id="cd-digits-${i}"></div>
       <button class="countdown-delete" onclick="deleteCountdown(${i})">✕</button>
