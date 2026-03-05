@@ -396,10 +396,10 @@
     .ticker-track{display:flex;align-items:center;white-space:nowrap;will-change:transform;}
     .ticker-track:hover{animation-play-state:paused!important;}
     @keyframes ticker-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
-    .ticker-item{font-family:var(--mono-font);font-size:.58rem;color:var(--text);letter-spacing:.05em;padding:0 20px;opacity:.85;}
-    .ticker-item a{color:inherit;text-decoration:none;}
+    .ticker-item{font-family:var(--mono-font);font-size:.58rem;color:#e8dfc8;letter-spacing:.05em;padding:0 20px;opacity:.9;}
+    .ticker-item a{color:#e8dfc8;text-decoration:none;}
     .ticker-item a:hover{color:var(--accent);}
-    .ticker-dot{color:var(--accent);opacity:.5;padding:0 2px;font-size:.7rem;}
+    .ticker-dot{color:var(--accent);opacity:.6;padding:0 2px;font-size:.7rem;}
 
     /* ── FOOTER ── */
     .footer{text-align:center;padding:8px 24px;border-top:1px solid var(--card-border);font-family:var(--mono-font);font-size:.55rem;letter-spacing:.22em;color:var(--dim);opacity:.5;transition:border-color .6s;flex-shrink:0;}
@@ -945,7 +945,7 @@ function buildTicker(items) {
   // Measure rendered width then set animation
   requestAnimationFrame(() => {
     const halfW = track.scrollWidth / 2;
-    const duration = Math.max(60, halfW / 30); // ~30px per second
+    const duration = Math.max(60, halfW / 80); // ~80px per second
     track.style.animation = `none`;
     track.style.setProperty('--ticker-half', `${halfW}px`);
 
