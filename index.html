@@ -578,7 +578,7 @@ else if(navigator.geolocation) {
 
 /* ───────── CALENDAR ───────── */
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calEvents=[];
-const GCAL_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID_HERE';
+const GCAL_CLIENT_ID='515127802289-tqi63shs6dvl19ds7jcaan6vhs3c8054.apps.googleusercontent.com';
 function connectGCal() {
   if(!window.gapi){const s=document.createElement('script');s.src='https://apis.google.com/js/api.js';s.onload=()=>{gapi.load('client:auth2',()=>{gapi.client.init({clientId:GCAL_CLIENT_ID,scope:'https://www.googleapis.com/auth/calendar.readonly',discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']}).then(()=>{if(!gapi.auth2.getAuthInstance().isSignedIn.get())gapi.auth2.getAuthInstance().signIn().then(fetchCalEvents);else fetchCalEvents();}).catch(()=>showCalPlaceholder());});};document.head.appendChild(s);}
   else{if(!gapi.auth2.getAuthInstance().isSignedIn.get())gapi.auth2.getAuthInstance().signIn().then(fetchCalEvents);else fetchCalEvents();}
