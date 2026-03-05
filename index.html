@@ -781,7 +781,7 @@ function buildTicker(items) {
   // Measure rendered width then set animation
   requestAnimationFrame(() => {
     const halfW = track.scrollWidth / 2;
-    const duration = Math.max(60, halfW / 80); // ~80px per second
+    const duration = Math.max(60, halfW / 40); // ~40px per second
     track.style.animation = `none`;
     track.style.setProperty('--ticker-half', `${halfW}px`);
 
