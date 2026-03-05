@@ -212,7 +212,7 @@
     /* ── CLOCK ── */
     .clock-face { text-align: center; }
     #clock-time {
-      font-family: var(--clock-font); font-size: clamp(3.2rem, 8vw, 4.8rem);
+      font-family: var(--clock-font); font-size: clamp(3.2rem, 8vw, 5.5rem);
       color: var(--accent2); letter-spacing: .06em; line-height: 1;
       text-shadow: 0 0 30px var(--glow-color); display: block;
       transition: color .6s, text-shadow .6s, font-family .01s;
@@ -242,6 +242,17 @@
     .weather-detail { font-family: var(--mono-font); font-size: .62rem; color: var(--dim); }
     .weather-detail strong { color: var(--text); display: block; font-size: .8rem; }
     #weather-status { font-family: var(--mono-font); font-size: .7rem; color: var(--dim); font-style: italic; }
+    .weather-week { display: flex; gap: 4px; margin-top: 14px; border-top: 1px solid var(--card-border); padding-top: 12px; }
+    .weather-day {
+      flex: 1; text-align: center; padding: 6px 2px;
+      border: 1px solid var(--card-border); border-radius: 2px;
+      background: rgba(0,0,0,.15); transition: border-color .6s, background .2s;
+    }
+    .weather-day:hover { background: rgba(255,255,255,.04); }
+    .weather-day-name { font-family: var(--mono-font); font-size: .48rem; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+    .weather-day-icon { font-size: 1.1rem; margin: 4px 0; line-height: 1; display: block; }
+    .weather-day-hi { font-family: var(--clock-font); font-size: .95rem; color: var(--accent2); line-height: 1; transition: color .6s, font-family .01s; }
+    .weather-day-lo { font-family: var(--mono-font); font-size: .52rem; color: var(--dim); margin-top: 2px; }
 
     /* ── CALENDAR ── */
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -524,21 +535,35 @@ const ICON = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️
 
 function displayWeather(data, city) {
   const c = data.current, wc = c.weather_code;
-  document.getElementById('weather-content').innerHTML = `
-    <div class="weather-main">
-      <div class="weather-icon">${ICON[wc]||'🌡️'}</div>
-      <div>
-        <div class="weather-temp">${Math.round(c.temperature_2m)}<span class="weather-unit">°F</span></div>
-        <div class="weather-desc">${WMO[wc]||'Unknown'}</div>
-        <div class="weather-loc">◈ ${city}</div>
-      </div>
-    </div>
-    <div class="weather-details">
-      <div class="weather-detail"><strong>${Math.round(c.apparent_temperature)}°F</strong>Feels Like</div>
-      <div class="weather-detail"><strong>${c.relative_humidity_2m}%</strong>Humidity</div>
-      <div class="weather-detail"><strong>${Math.round(c.wind_speed_10m)} mph</strong>Wind</div>
-      <div class="weather-detail"><strong>${data.daily?.precipitation_probability_max?.[0]??'--'}%</strong>Precip. Chance</div>
-    </div>`;
+  const DS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const weekHTML = (data.daily?.time||[]).map((dateStr,i)=>{
+    const d = new Date(dateStr+'T12:00:00');
+    const label = i===0?'TODAY':DS[d.getDay()];
+    const dwc = data.daily.weather_code[i];
+    const hi  = Math.round(data.daily.temperature_2m_max[i]);
+    const lo  = Math.round(data.daily.temperature_2m_min[i]);
+    return '<div class="weather-day">'
+      +'<div class="weather-day-name">'+label+'</div>'
+      +'<span class="weather-day-icon">'+(ICON[dwc]||'🌡️')+'</span>'
+      +'<div class="weather-day-hi">'+hi+'°</div>'
+      +'<div class="weather-day-lo">'+lo+'°</div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('weather-content').innerHTML =
+    '<div class="weather-main">'
+    +'<div class="weather-icon">'+(ICON[wc]||'🌡️')+'</div>'
+    +'<div>'
+    +'<div class="weather-temp">'+Math.round(c.temperature_2m)+'<span class="weather-unit">°F</span></div>'
+    +'<div class="weather-desc">'+(WMO[wc]||'Unknown')+'</div>'
+    +'<div class="weather-loc">◈ '+city+'</div>'
+    +'</div></div>'
+    +'<div class="weather-details">'
+    +'<div class="weather-detail"><strong>'+Math.round(c.apparent_temperature)+'°F</strong>Feels Like</div>'
+    +'<div class="weather-detail"><strong>'+c.relative_humidity_2m+'%</strong>Humidity</div>'
+    +'<div class="weather-detail"><strong>'+Math.round(c.wind_speed_10m)+' mph</strong>Wind</div>'
+    +'<div class="weather-detail"><strong>'+(data.daily?.precipitation_probability_max?.[0]??'--')+'%</strong>Precip. Chance</div>'
+    +'</div>'
+    +'<div class="weather-week">'+weekHTML+'</div>';
 }
 function showLocationFallback(reason) {
   document.getElementById('weather-content').innerHTML = `
@@ -560,7 +585,7 @@ function manualWeather() {
 async function fetchWeather(lat,lon) {
   let city='Your Location';
   try { const g=await(await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)).json(); city=g.address?.city||g.address?.town||g.address?.village||g.address?.county||city; } catch(e){}
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`;
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=precipitation_probability_max,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=7`;
   try {
     displayWeather(await(await fetch(url)).json(), city);
     setInterval(async()=>{ try{displayWeather(await(await fetch(url)).json(),city);}catch(e){} },600000);
