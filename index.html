@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>COMMAND CENTRAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&family=Orbitron:wght@400;700;900&family=Pacifico&family=Special+Elite&family=Josefin+Slab:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root, [data-theme="retro"] {
       --bg:#0d1b2e; --bg2:#122340; --accent:#e8a020; --accent2:#f5c842;
@@ -38,6 +38,22 @@
       --ticker-bg:rgba(15,5,0,0.96);
     }
 
+    [data-theme="tiki"] {
+      --bg:#1a0d04; --bg2:#2a1506; --accent:#d4612a; --accent2:#e8963a;
+      --text:#f5e6c8; --danger:#c0392b; --teal:#4a9e6b; --dim:#8a6a4a;
+      --card:rgba(38,18,6,0.88); --card-border:rgba(212,97,42,.22);
+      --card-top:linear-gradient(90deg,transparent,#d4612a,transparent);
+      --grid-line:rgba(212,97,42,.04); --glow-color:rgba(232,150,58,.45);
+      --glow-color2:rgba(212,97,42,.45); --label-after:rgba(212,97,42,.3);
+      --input-bg:rgba(26,13,4,.85); --input-border:rgba(212,97,42,.25);
+      --input-border-focus:#d4612a; --btn-bg:rgba(212,97,42,.12);
+      --btn-border:rgba(212,97,42,.35); --btn-hover:rgba(212,97,42,.28);
+      --today-bg:#d4612a; --today-color:#1a0d04; --event-dot:#4a9e6b;
+      --clock-font:'Pacifico',cursive; --body-font:'Josefin Slab',serif;
+      --mono-font:'Special Elite',cursive; --date-font:'Josefin Slab',serif;
+      --ticker-bg:rgba(20,8,2,0.97);
+    }
+
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--body-font);overflow:hidden;transition:background .6s,color .6s;}
     #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
@@ -54,7 +70,54 @@
     #cyber-sky svg{width:100%;height:100%;}
     [data-theme="cyber"] #cyber-sky{opacity:1;}
 
-    /* ── THEME TOGGLE ── */
+    /* ── TIKI ATMOSPHERE ── */
+    #tiki-sky {
+      position:fixed;bottom:0;left:0;right:0;height:180px;z-index:0;pointer-events:none;
+      opacity:0;transition:opacity .8s;
+    }
+    #tiki-sky svg{width:100%;height:100%;}
+    [data-theme="tiki"] #tiki-sky{opacity:1;}
+    [data-theme="tiki"] .orbit-ring{opacity:0;}
+    [data-theme="tiki"] #scanlines{opacity:0;}
+
+    /* Tiki card treatment — woodgrain top bar & bamboo corners */
+    [data-theme="tiki"] .card::before{
+      background:linear-gradient(90deg,transparent,#d4612a,#e8963a,#d4612a,transparent);
+      opacity:.6;
+    }
+    [data-theme="tiki"] .card::after{
+      content:'';position:absolute;bottom:0;right:0;
+      width:28px;height:28px;
+      border-bottom:2px solid rgba(212,97,42,.4);
+      border-right:2px solid rgba(212,97,42,.4);
+    }
+    [data-theme="tiki"] .card:hover{
+      box-shadow:0 0 28px rgba(212,97,42,.12),inset 0 0 28px rgba(212,97,42,.04);
+    }
+    /* Body gets a subtle warm woodgrain noise via SVG filter */
+    [data-theme="tiki"] body::after{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity:.4;
+    }
+    /* Torch flicker on clock */
+    [data-theme="tiki"] #clock-time{
+      animation:torch-flicker 4s ease-in-out infinite;
+    }
+    @keyframes torch-flicker{
+      0%,100%{text-shadow:0 0 20px rgba(232,150,58,.7),0 0 50px rgba(212,97,42,.3);}
+      25%    {text-shadow:0 0 30px rgba(232,150,58,.9),0 0 70px rgba(212,97,42,.5),0 0 100px rgba(180,60,10,.2);}
+      50%    {text-shadow:0 0 18px rgba(232,150,58,.6),0 0 40px rgba(212,97,42,.25);}
+      75%    {text-shadow:0 0 35px rgba(245,180,80,.8),0 0 80px rgba(212,97,42,.4);}
+    }
+    /* Card label in tiki gets a warmer flicker */
+    [data-theme="tiki"] .card-label{animation:tiki-lbl 11s infinite;}
+    @keyframes tiki-lbl{0%,85%,87%,89%,100%{opacity:.85;}86%{opacity:.45;}88%{opacity:.85;}}
+
+    /* Ticker label override */
+    [data-theme="tiki"] .ticker-label{background:var(--accent);}
+
+
     .theme-toggle{position:fixed;top:14px;right:16px;z-index:100;background:var(--card);border:1px solid var(--card-border);color:var(--accent);font-family:var(--mono-font);font-size:.55rem;letter-spacing:.18em;padding:6px 14px;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s,color .2s,border-color .6s;text-transform:uppercase;}
     .theme-toggle:hover{background:var(--accent);color:var(--bg);}
     [data-theme="cyber"] .theme-toggle{box-shadow:0 0 12px rgba(255,69,0,.3);animation:glitch-btn 7s infinite;}
@@ -220,7 +283,45 @@
   </svg>
 </div>
 
-<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">◈ AKIRA MODE</button>
+<!-- TIKI PALM SILHOUETTE -->
+<div id="tiki-sky">
+  <svg viewBox="0 0 1440 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ground fill -->
+    <rect x="0" y="155" width="1440" height="25" fill="rgba(20,8,2,0.6)"/>
+    <!-- Palm trunks -->
+    <path d="M80,180 Q85,120 95,80 Q100,60 105,80 Q110,120 115,180Z" fill="rgba(90,45,10,0.35)"/>
+    <path d="M1320,180 Q1325,110 1335,65 Q1340,45 1345,65 Q1350,110 1355,180Z" fill="rgba(90,45,10,0.35)"/>
+    <path d="M680,180 Q684,130 690,95 Q694,78 698,95 Q702,130 706,180Z" fill="rgba(90,45,10,0.28)"/>
+    <path d="M420,180 Q424,140 428,115 Q431,103 434,115 Q437,140 441,180Z" fill="rgba(90,45,10,0.22)"/>
+    <path d="M1050,180 Q1054,138 1058,112 Q1061,100 1064,112 Q1067,138 1071,180Z" fill="rgba(90,45,10,0.22)"/>
+    <!-- Left big palm fronds -->
+    <path d="M95,80 Q50,55 10,65 Q30,45 95,72Z"  fill="rgba(30,65,25,0.45)"/>
+    <path d="M95,80 Q60,40 40,20 Q70,30 98,68Z"  fill="rgba(35,70,28,0.4)"/>
+    <path d="M95,80 Q115,45 140,35 Q125,55 100,75Z" fill="rgba(28,60,22,0.45)"/>
+    <path d="M95,80 Q130,55 160,60 Q140,48 100,73Z" fill="rgba(32,68,25,0.38)"/>
+    <path d="M95,80 Q75,70 30,80 Q55,65 93,76Z"  fill="rgba(25,55,20,0.35)"/>
+    <!-- Right big palm fronds -->
+    <path d="M1335,65 Q1380,40 1430,50 Q1410,30 1335,58Z" fill="rgba(30,65,25,0.45)"/>
+    <path d="M1335,65 Q1370,25 1400,10 Q1370,22 1337,60Z" fill="rgba(35,70,28,0.4)"/>
+    <path d="M1335,65 Q1310,30 1290,25 Q1305,45 1332,62Z" fill="rgba(28,60,22,0.45)"/>
+    <path d="M1335,65 Q1295,48 1270,55 Q1290,42 1332,60Z" fill="rgba(32,68,25,0.38)"/>
+    <!-- Center palm fronds -->
+    <path d="M692,95 Q650,70 615,75 Q640,55 690,88Z" fill="rgba(28,58,22,0.38)"/>
+    <path d="M692,95 Q660,60 650,40 Q672,55 694,85Z" fill="rgba(32,65,25,0.35)"/>
+    <path d="M692,95 Q730,65 755,68 Q732,52 694,88Z" fill="rgba(28,58,22,0.38)"/>
+    <path d="M692,95 Q720,72 740,78 Q718,60 695,90Z" fill="rgba(25,55,20,0.3)"/>
+    <!-- Tiki torch glow spots -->
+    <circle cx="220" cy="130" r="18" fill="rgba(212,97,42,0.08)"/>
+    <circle cx="220" cy="130" r="8"  fill="rgba(232,150,58,0.12)"/>
+    <rect x="218" y="130" width="4" height="28" fill="rgba(90,45,10,0.4)"/>
+    <circle cx="1210" cy="130" r="18" fill="rgba(212,97,42,0.08)"/>
+    <circle cx="1210" cy="130" r="8"  fill="rgba(232,150,58,0.12)"/>
+    <rect x="1208" y="130" width="4" height="28" fill="rgba(90,45,10,0.4)"/>
+    <circle cx="700" cy="148" r="14" fill="rgba(212,97,42,0.06)"/>
+    <circle cx="700" cy="148" r="6"  fill="rgba(232,150,58,0.1)"/>
+    <rect x="698" y="148" width="4" height="30" fill="rgba(90,45,10,0.35)"/>
+  </svg>
+</div> onclick="toggleTheme()" id="theme-btn">◈ AKIRA MODE</button>
 
 <div class="shell">
   <main class="main-grid">
@@ -300,7 +401,7 @@
 
   <!-- NEWS TICKER -->
   <div class="news-ticker">
-    <div class="ticker-label">◈ NEWS</div>
+    <div class="ticker-label" id="ticker-label">◈ NEWS</div>
     <div class="ticker-track-wrap">
       <div class="ticker-track" id="ticker-track">
         <span class="ticker-item">Acquiring news feed…</span>
@@ -316,8 +417,9 @@
    THEME
 ═══════════════════════════════════════ */
 const THEMES = {
-  retro:{btn:'◈ AKIRA MODE',footer:'◈  COMMAND CENTRAL  ◈  ALL SYSTEMS NOMINAL  ◈',starColor:'rgba(242,234,216,',starCount:180,falling:false},
-  cyber:{btn:'◈ RETRO MODE',footer:'// NEO-TOKYO CONTROL //  SYS:ONLINE  //  WARNING: MUTATION DETECTED //',starColor:'rgba(255,120,50,',starCount:90,falling:true}
+  retro:{btn:'◈ AKIRA MODE',      footer:'◈  COMMAND CENTRAL  ◈  ALL SYSTEMS NOMINAL  ◈',                              starColor:'rgba(242,234,216,', starCount:180, falling:false, fireflies:false},
+  cyber:{btn:'◈ TIKI MODE',       footer:'// NEO-TOKYO CONTROL //  SYS:ONLINE  //  WARNING: MUTATION DETECTED //',       starColor:'rgba(255,120,50,',  starCount:90,  falling:true,  fireflies:false},
+  tiki: {btn:'◈ RETRO MODE',      footer:'✦  THE TIKI LOUNGE  ✦  ALL DRINKS NOMINAL  ✦  NO SHIRT NO SHOES NO PROBLEM', starColor:'rgba(255,180,60,',  starCount:60,  falling:false, fireflies:true }
 };
 let currentTheme = localStorage.getItem('dashboard-theme') || 'retro';
 function applyTheme(theme) {
@@ -327,32 +429,56 @@ function applyTheme(theme) {
   const t = THEMES[theme];
   document.getElementById('theme-btn').textContent   = t.btn;
   document.getElementById('footer-text').textContent = t.footer;
+  const tl = document.getElementById('ticker-label');
+  if(tl) tl.textContent = theme==='tiki' ? '🌴 COCONUT TELEGRAPH' : '◈ NEWS';
   localStorage.setItem('dashboard-theme', theme);
-  initStars(t.starColor, t.starCount, t.falling);
+  initStars(t.starColor, t.starCount, t.falling, t.fireflies);
   drawMoon();
 }
-function toggleTheme() { applyTheme(currentTheme === 'retro' ? 'cyber' : 'retro'); }
+function toggleTheme() {
+  const order = ['retro','cyber','tiki'];
+  applyTheme(order[(order.indexOf(currentTheme) + 1) % order.length]);
+}
 
 /* ═══════════════════════════════════════
    STARFIELD
 ═══════════════════════════════════════ */
 const canvas = document.getElementById('stars');
 const ctx = canvas.getContext('2d');
-let W, H, stars = [], sCfg = {color:'rgba(242,234,216,',count:180,falling:false};
-function initStars(color, count, falling) {
-  sCfg = {color,count,falling};
+let W, H, stars = [], sCfg = {color:'rgba(242,234,216,',count:180,falling:false,fireflies:false};
+function initStars(color, count, falling, fireflies=false) {
+  sCfg = {color,count,falling,fireflies};
   W = canvas.width  = window.innerWidth;
   H = canvas.height = window.innerHeight;
-  stars = Array.from({length:count}, () => ({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.3,a:Math.random(),da:(Math.random()-.5)*.005,speed:Math.random()*.5+.1}));
+  stars = Array.from({length:count}, () => ({
+    x:Math.random()*W, y:Math.random()*H,
+    r: fireflies ? Math.random()*2.5+1 : Math.random()*1.4+.3,
+    a:Math.random(),
+    da: fireflies ? (Math.random()-.5)*.015 : (Math.random()-.5)*.005,
+    speed:Math.random()*.5+.1,
+    dx: fireflies ? (Math.random()-.5)*.4 : 0,
+    dy: fireflies ? (Math.random()-.5)*.3 : 0,
+  }));
 }
 function drawStars() {
   ctx.clearRect(0,0,W,H);
   stars.forEach(s => {
-    s.a = Math.max(.1,Math.min(1,s.a+s.da));
-    if(s.a<=.1||s.a>=1) s.da*=-1;
-    if(sCfg.falling){s.y+=s.speed;if(s.y>H){s.y=0;s.x=Math.random()*W;}}
+    s.a = Math.max(.05, Math.min(1, s.a+s.da));
+    if(s.a<=.08 || s.a>=.95) s.da*=-1;
+    if(sCfg.falling){ s.y+=s.speed; if(s.y>H){s.y=0;s.x=Math.random()*W;} }
+    if(sCfg.fireflies){
+      s.x+=s.dx; s.y+=s.dy;
+      if(s.x<0||s.x>W) s.dx*=-1;
+      if(s.y<0||s.y>H) s.dy*=-1;
+      // Glow effect for fireflies
+      const grad = ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*4);
+      grad.addColorStop(0, `${sCfg.color}${s.a})`);
+      grad.addColorStop(1, `${sCfg.color}0)`);
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r*4,0,Math.PI*2);
+      ctx.fillStyle=grad; ctx.fill();
+    }
     ctx.beginPath();
-    ctx.arc(s.x,s.y,sCfg.falling?s.r*.6:s.r,0,Math.PI*2);
+    ctx.arc(s.x,s.y, sCfg.falling?s.r*.6:s.r, 0, Math.PI*2);
     ctx.fillStyle=`${sCfg.color}${s.a})`;
     ctx.fill();
   });
@@ -407,12 +533,13 @@ function drawMoon() {
   const {age, illum, name} = getMoonPhase(new Date());
   const R   = 23, cX = 26, cY = 26;
   const cyber = currentTheme === 'cyber';
+  const tiki  = currentTheme === 'tiki';
   cx.clearRect(0, 0, 52, 52);
 
   // Shadow side (dark disc)
   cx.beginPath();
   cx.arc(cX, cY, R, 0, Math.PI * 2);
-  cx.fillStyle = cyber ? '#160800' : '#08141f';
+  cx.fillStyle = cyber ? '#160800' : tiki ? '#120600' : '#08141f';
   cx.fill();
 
   // Lit side
@@ -433,14 +560,14 @@ function drawMoon() {
     cx.arc(cX, cY, R, Math.PI/2, -Math.PI/2, false);
     cx.ellipse(cX, cY, R * xScale || 0.1, R, 0, -Math.PI/2, Math.PI/2, false);
   }
-  cx.fillStyle = cyber ? '#ff9040' : '#f0deb0';
+  cx.fillStyle = cyber ? '#ff9040' : tiki ? '#ffd080' : '#f0deb0';
   cx.fill();
   cx.restore();
 
   // Rim
   cx.beginPath();
   cx.arc(cX, cY, R, 0, Math.PI * 2);
-  cx.strokeStyle = cyber ? 'rgba(255,100,0,.25)' : 'rgba(220,200,150,.2)';
+  cx.strokeStyle = cyber ? 'rgba(255,100,0,.25)' : tiki ? 'rgba(212,97,42,.3)' : 'rgba(220,200,150,.2)';
   cx.lineWidth = 1;
   cx.stroke();
 
@@ -652,7 +779,7 @@ function buildTicker(items) {
   // Measure rendered width then set animation
   requestAnimationFrame(() => {
     const halfW = track.scrollWidth / 2;
-    const duration = Math.max(60, halfW / 80); // ~80px per second
+    const duration = Math.max(60, halfW / 40); // ~80px per second
     track.style.animation = `none`;
     track.style.setProperty('--ticker-half', `${halfW}px`);
 
