@@ -212,7 +212,7 @@
     /* ── CLOCK ── */
     .clock-face { text-align: center; }
     #clock-time {
-      font-family: var(--clock-font); font-size: clamp(3.2rem, 8vw, 4.8rem);
+      font-family: var(--clock-font); font-size: clamp(3.2rem, 8vw, 5.5rem);
       color: var(--accent2); letter-spacing: .06em; line-height: 1;
       text-shadow: 0 0 30px var(--glow-color); display: block;
       transition: color .6s, text-shadow .6s, font-family .01s;
@@ -604,7 +604,7 @@ else if(navigator.geolocation) {
 /* ───────── CALENDAR ───────── */
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calEvents=[];
 // ── PASTE YOUR CLIENT ID BELOW ──
-const GCAL_CLIENT_ID = '515127802289-tqi63shs6dvl19ds7jcaan6vhs3c8054.apps.googleusercontent.com';
+const GCAL_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE';
 const GCAL_SCOPE     = 'https://www.googleapis.com/auth/calendar.readonly';
 let tokenClient, gapiReady = false, gisReady = false;
 
@@ -689,7 +689,9 @@ function renderCalendar(){
   ec.innerHTML=up.length?up.map(e=>{const d=new Date(e.start.dateTime||e.start.date);return`<div class="cal-event-item"><div class="cal-event-date">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}<br>${e.start.dateTime?d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'All Day'}</div><div class="cal-event-title">${e.summary||'Untitled'}</div></div>`;}).join(''):'<div style="font-family:var(--mono-font);font-size:.65rem;color:var(--dim);font-style:italic;">No upcoming events on record.</div>';
 }
 function changeMonth(d){calMonth+=d;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
-showCalPlaceholder();
+/* ── Show calendar grid without hiding connect button on load ──
+   The connect button stays visible until the user authenticates. */
+renderCalendar();
 
 /* ───────── COUNTDOWNS ───────── */
 let countdowns=JSON.parse(localStorage.getItem('cd_events')||'[]');
