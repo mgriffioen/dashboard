@@ -603,13 +603,78 @@ else if(navigator.geolocation) {
 
 /* ───────── CALENDAR ───────── */
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calEvents=[];
-const GCAL_CLIENT_ID='515127802289-tqi63shs6dvl19ds7jcaan6vhs3c8054.apps.googleusercontent.com';
+// ── PASTE YOUR CLIENT ID BELOW ──
+const GCAL_CLIENT_ID = '515127802289-tqi63shs6dvl19ds7jcaan6vhs3c8054.apps.googleusercontent.com';
+const GCAL_SCOPE     = 'https://www.googleapis.com/auth/calendar.readonly';
+let tokenClient, gapiReady = false, gisReady = false;
+
+// Load both Google scripts
+(function loadGoogleScripts() {
+  const s1 = document.createElement('script');
+  s1.src = 'https://apis.google.com/js/api.js';
+  s1.onload = () => {
+    gapi.load('client', async () => {
+      await gapi.client.init({});
+      await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
+      gapiReady = true;
+    });
+  };
+  document.head.appendChild(s1);
+
+  const s2 = document.createElement('script');
+  s2.src = 'https://accounts.google.com/gsi/client';
+  s2.onload = () => {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GCAL_CLIENT_ID,
+      scope: GCAL_SCOPE,
+      callback: async (resp) => {
+        if (resp.error) { console.error(resp); return; }
+        await fetchCalEvents();
+      }
+    });
+    gisReady = true;
+  };
+  document.head.appendChild(s2);
+})();
+
 function connectGCal() {
-  if(!window.gapi){const s=document.createElement('script');s.src='https://apis.google.com/js/api.js';s.onload=()=>{gapi.load('client:auth2',()=>{gapi.client.init({clientId:GCAL_CLIENT_ID,scope:'https://www.googleapis.com/auth/calendar.readonly',discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']}).then(()=>{if(!gapi.auth2.getAuthInstance().isSignedIn.get())gapi.auth2.getAuthInstance().signIn().then(fetchCalEvents);else fetchCalEvents();}).catch(()=>showCalPlaceholder());});};document.head.appendChild(s);}
-  else{if(!gapi.auth2.getAuthInstance().isSignedIn.get())gapi.auth2.getAuthInstance().signIn().then(fetchCalEvents);else fetchCalEvents();}
+  if (!GCAL_CLIENT_ID || GCAL_CLIENT_ID === '515127802289-tqi63shs6dvl19ds7jcaan6vhs3c8054.apps.googleusercontent.com') {
+    alert('Please add your Google Client ID to the dashboard code first.');
+    return;
+  }
+  const tryConnect = () => {
+    if (!gapiReady || !gisReady) { setTimeout(tryConnect, 200); return; }
+    // If we already have a valid token, fetch directly
+    if (gapi.client.getToken()) { fetchCalEvents(); return; }
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  };
+  tryConnect();
 }
-async function fetchCalEvents(){try{const now=new Date(),res=await gapi.client.calendar.events.list({calendarId:'primary',timeMin:new Date(now.getFullYear(),now.getMonth(),1).toISOString(),timeMax:new Date(now.getFullYear(),now.getMonth()+2,0).toISOString(),singleEvents:true,orderBy:'startTime',maxResults:50});calEvents=res.result.items||[];document.getElementById('cal-status').style.display='none';document.getElementById('cal-container').style.display='block';renderCalendar();}catch(e){showCalPlaceholder();}}
-function showCalPlaceholder(){calEvents=[];document.getElementById('cal-status').style.display='none';document.getElementById('cal-container').style.display='block';renderCalendar();}
+
+async function fetchCalEvents() {
+  try {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const end   = new Date(now.getFullYear(), now.getMonth()+2, 0).toISOString();
+    const res   = await gapi.client.calendar.events.list({
+      calendarId: 'primary', timeMin: start, timeMax: end,
+      singleEvents: true, orderBy: 'startTime', maxResults: 50
+    });
+    calEvents = res.result.items || [];
+    document.getElementById('cal-status').style.display    = 'none';
+    document.getElementById('cal-container').style.display = 'block';
+    renderCalendar();
+  } catch(e) {
+    console.error('Calendar fetch error:', e);
+    showCalPlaceholder();
+  }
+}
+function showCalPlaceholder() {
+  calEvents = [];
+  document.getElementById('cal-status').style.display    = 'none';
+  document.getElementById('cal-container').style.display = 'block';
+  renderCalendar();
+}
 function renderCalendar(){
   const MO=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
   document.getElementById('cal-month-label').textContent=`${MO[calMonth]} ${calYear}`;
