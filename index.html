@@ -321,7 +321,9 @@
     <circle cx="700" cy="148" r="6"  fill="rgba(232,150,58,0.1)"/>
     <rect x="698" y="148" width="4" height="30" fill="rgba(90,45,10,0.35)"/>
   </svg>
-</div> onclick="toggleTheme()" id="theme-btn">◈ AKIRA MODE</button>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">◈ AKIRA MODE</button>
 
 <div class="shell">
   <main class="main-grid">
@@ -779,7 +781,7 @@ function buildTicker(items) {
   // Measure rendered width then set animation
   requestAnimationFrame(() => {
     const halfW = track.scrollWidth / 2;
-    const duration = Math.max(60, halfW / 40); // ~80px per second
+    const duration = Math.max(60, halfW / 80); // ~80px per second
     track.style.animation = `none`;
     track.style.setProperty('--ticker-half', `${halfW}px`);
 
