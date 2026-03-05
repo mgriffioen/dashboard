@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>COMMAND CENTRAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&family=Orbitron:wght@400;700;900&family=Pacifico&family=Special+Elite&family=Josefin+Slab:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&family=Orbitron:wght@400;700;900&family=Pacifico&family=Special+Elite&family=Josefin+Slab:wght@300;400;600&family=League+Spartan:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root, [data-theme="retro"] {
       --bg:#0d1b2e; --bg2:#122340; --accent:#e8a020; --accent2:#f5c842;
@@ -54,7 +54,21 @@
       --ticker-bg:rgba(20,8,2,0.97);
     }
 
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    [data-theme="bass"] {
+      --bg:#f0ece0; --bg2:#e8e0d0; --accent:#c0392b; --accent2:#c0392b;
+      --text:#1a1a1a; --danger:#c0392b; --teal:#1a6b4a; --dim:#8a7a6a;
+      --card:rgba(245,240,228,0.95); --card-border:rgba(26,26,26,.15);
+      --card-top:linear-gradient(90deg,#1a1a1a,#1a1a1a);
+      --grid-line:rgba(26,26,26,.0); --glow-color:rgba(192,57,43,.0);
+      --glow-color2:rgba(192,57,43,.0); --label-after:rgba(26,26,26,.15);
+      --input-bg:rgba(255,255,255,.7); --input-border:rgba(26,26,26,.25);
+      --input-border-focus:#c0392b; --btn-bg:rgba(192,57,43,.1);
+      --btn-border:rgba(192,57,43,.4); --btn-hover:rgba(192,57,43,.18);
+      --today-bg:#c0392b; --today-color:#f0ece0; --event-dot:#1a6b4a;
+      --clock-font:'League Spartan',sans-serif; --body-font:'League Spartan',sans-serif;
+      --mono-font:'Courier Prime',monospace; --date-font:'League Spartan',sans-serif;
+      --ticker-bg:#1a1a1a;
+    }
     html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--body-font);overflow:hidden;transition:background .6s,color .6s;}
     #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
     body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;transition:background-image .6s;}
@@ -116,6 +130,128 @@
 
     /* Ticker label override */
     [data-theme="tiki"] .ticker-label{background:var(--accent);}
+
+    /* ── SAUL BASS ATMOSPHERE ── */
+    /* Kill stars canvas, orbit rings, scanlines, grid */
+    [data-theme="bass"] #stars{opacity:0;}
+    [data-theme="bass"] body::before{display:none;}
+    [data-theme="bass"] .orbit-ring{opacity:0;}
+    [data-theme="bass"] #scanlines{opacity:0;}
+    [data-theme="bass"] #cyber-sky{opacity:0;}
+    [data-theme="bass"] #tiki-sky{opacity:0;}
+
+    /* Geometric background shapes — the Bass signature */
+    #bass-geo{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s;}
+    [data-theme="bass"] #bass-geo{opacity:1;}
+
+    /* Flat, print-like cards — no glass, no blur */
+    [data-theme="bass"] .card{
+      background:#f5f0e4;
+      border:2px solid #1a1a1a;
+      border-radius:0;
+      backdrop-filter:none;
+      box-shadow:4px 4px 0 #1a1a1a;
+      transition:box-shadow .15s,transform .15s;
+    }
+    [data-theme="bass"] .card:hover{
+      box-shadow:6px 6px 0 #1a1a1a;
+      transform:translate(-1px,-1px);
+    }
+    /* Bold black top bar instead of gradient */
+    [data-theme="bass"] .card::before{
+      background:#1a1a1a;
+      height:4px;
+      opacity:1;
+    }
+    /* Red accent bar on alternating cards */
+    [data-theme="bass"] .card:nth-child(2n)::before{background:#c0392b;}
+    [data-theme="bass"] .card:nth-child(3)::before{background:#d4a020;}
+    [data-theme="bass"] .card::after{display:none;}
+
+    /* Card label — bold, tracked, black */
+    [data-theme="bass"] .card-label{
+      font-family:'League Spartan',sans-serif;
+      font-weight:900;
+      font-size:.58rem;
+      letter-spacing:.3em;
+      color:#1a1a1a;
+      opacity:1;
+      animation:none;
+    }
+    [data-theme="bass"] .card-label::after{
+      background:linear-gradient(90deg,rgba(26,26,26,.2),transparent);
+    }
+
+    /* Clock — massive, black, no glow */
+    [data-theme="bass"] #clock-time{
+      color:#1a1a1a;
+      text-shadow:none;
+      font-weight:900;
+      letter-spacing:-.02em;
+      animation:none;
+    }
+    [data-theme="bass"] #clock-seconds{color:#c0392b;}
+    [data-theme="bass"] #clock-day{color:#c0392b;letter-spacing:.25em;}
+    [data-theme="bass"] #clock-date{font-style:normal;font-weight:700;color:#1a1a1a;letter-spacing:.08em;}
+
+    /* Weather — no emoji glow */
+    [data-theme="bass"] .weather-icon{filter:none;font-size:2.4rem;}
+    [data-theme="bass"] .weather-temp{color:#1a1a1a;font-weight:900;}
+    [data-theme="bass"] .weather-unit{color:#8a7a6a;}
+    [data-theme="bass"] .weather-desc{font-style:normal;font-weight:700;color:#1a1a1a;letter-spacing:.04em;}
+    [data-theme="bass"] .weather-day{background:#ede8d8;border:1px solid rgba(26,26,26,.15);border-radius:0;}
+    [data-theme="bass"] .weather-day:hover{background:#e0d8c4;}
+    [data-theme="bass"] .weather-day-hi{color:#c0392b;}
+
+    /* Calendar */
+    [data-theme="bass"] .cal-month{color:#1a1a1a;font-weight:900;}
+    [data-theme="bass"] .cal-nav button{border:1px solid #1a1a1a;color:#1a1a1a;border-radius:0;}
+    [data-theme="bass"] .cal-nav button:hover{background:#1a1a1a;color:#f0ece0;}
+    [data-theme="bass"] .cal-day.today{background:#c0392b;color:#f0ece0;border-radius:0;}
+
+    /* Inputs & buttons — flat, sharp */
+    [data-theme="bass"] input,[data-theme="bass"] .add-countdown input{
+      border-radius:0;background:#fff;border:1px solid #1a1a1a;color:#1a1a1a;
+    }
+    [data-theme="bass"] .add-countdown button,
+    [data-theme="bass"] .todo-input-row button,
+    [data-theme="bass"] #connect-gcal{
+      border-radius:0;font-family:'League Spartan',sans-serif;font-weight:700;
+      letter-spacing:.12em;border:2px solid #1a1a1a;
+    }
+    [data-theme="bass"] .todo-item{
+      border-radius:0;border:1px solid rgba(26,26,26,.12);
+      background:rgba(255,255,255,.5);
+    }
+    [data-theme="bass"] .todo-check{border-radius:0;border:2px solid #1a1a1a;}
+    [data-theme="bass"] .todo-check.checked{background:#c0392b;border-color:#c0392b;}
+    [data-theme="bass"] .countdown-item{border-radius:0;border:2px solid #1a1a1a;background:rgba(255,255,255,.4);}
+    [data-theme="bass"] .countdown-num{color:#c0392b;text-shadow:none;}
+    [data-theme="bass"] .countdown-sep{color:#1a1a1a;}
+
+    /* Moon */
+    [data-theme="bass"] .moon-phase-name{font-style:normal;font-weight:700;letter-spacing:.06em;color:#1a1a1a;}
+    [data-theme="bass"] .moon-illum{color:#8a7a6a;}
+    [data-theme="bass"] .moon-section{border-top:2px solid rgba(26,26,26,.12);}
+
+    /* Ticker — black bar, cream text */
+    [data-theme="bass"] .news-ticker{border-top:3px solid #1a1a1a;}
+    [data-theme="bass"] .ticker-label{background:#1a1a1a;color:#f0ece0;font-family:'League Spartan',sans-serif;font-weight:900;letter-spacing:.25em;}
+    [data-theme="bass"] .ticker-item{color:#1a1a1a;}
+    [data-theme="bass"] .ticker-item a{color:#1a1a1a;}
+    [data-theme="bass"] .ticker-item a:hover{color:#c0392b;}
+    [data-theme="bass"] .ticker-dot{color:#c0392b;opacity:.7;}
+
+    /* Footer */
+    [data-theme="bass"] .footer{color:#1a1a1a;opacity:.5;letter-spacing:.3em;border-top:2px solid rgba(26,26,26,.15);}
+
+    /* Theme toggle button */
+    [data-theme="bass"] .theme-toggle{
+      background:#1a1a1a;border:2px solid #1a1a1a;color:#f0ece0;
+      border-radius:0;backdrop-filter:none;font-family:'League Spartan',sans-serif;
+      font-weight:700;letter-spacing:.2em;
+    }
+    [data-theme="bass"] .theme-toggle:hover{background:#c0392b;border-color:#c0392b;}
 
 
     .theme-toggle{position:fixed;top:14px;right:16px;z-index:100;background:var(--card);border:1px solid var(--card-border);color:var(--accent);font-family:var(--mono-font);font-size:.55rem;letter-spacing:.18em;padding:6px 14px;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s,color .2s,border-color .6s;text-transform:uppercase;}
@@ -272,6 +408,32 @@
 </head>
 <body>
 
+<!-- SAUL BASS GEOMETRIC BACKGROUND -->
+<div id="bass-geo">
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <!-- Large diagonal slash — top left -->
+    <polygon points="-60,0 180,0 80,100vh -60,100vh" fill="rgba(192,57,43,0.06)"/>
+    <!-- Bold red slash block -->
+    <polygon points="0,60% 60,55% 80,65% 0,70%" fill="rgba(192,57,43,0.07)"/>
+    <!-- Top right corner block -->
+    <rect x="75%" y="0" width="8%" height="35%" fill="rgba(26,26,26,0.04)"/>
+    <!-- Small red square accent -->
+    <rect x="82%" y="8%" width="4%" height="8%" fill="rgba(192,57,43,0.08)"/>
+    <!-- Bottom left rectangle -->
+    <rect x="0" y="78%" width="22%" height="5%" fill="rgba(26,26,26,0.04)"/>
+    <!-- Diagonal lines cluster — Bass spiral/motion signature -->
+    <line x1="55%" y1="0" x2="45%" y2="100%" stroke="rgba(26,26,26,0.04)" stroke-width="40"/>
+    <line x1="62%" y1="0" x2="52%" y2="100%" stroke="rgba(26,26,26,0.03)" stroke-width="20"/>
+    <!-- Bottom right triangle -->
+    <polygon points="100%,70% 100%,100% 72%,100%" fill="rgba(192,57,43,0.05)"/>
+    <!-- Floating square mid-left -->
+    <rect x="5%" y="30%" width="6%" height="12%" fill="rgba(212,160,32,0.07)"/>
+    <!-- Thin horizontal rule accent -->
+    <rect x="0" y="50%" width="18%" height="2px" fill="rgba(26,26,26,0.08)"/>
+    <rect x="82%" y="50%" width="18%" height="2px" fill="rgba(26,26,26,0.08)"/>
+  </svg>
+</div>
+
 <canvas id="stars"></canvas>
 <div class="orbit-ring"></div>
 <div class="orbit-ring r2"></div>
@@ -419,9 +581,10 @@
    THEME
 ═══════════════════════════════════════ */
 const THEMES = {
-  retro:{btn:'◈ AKIRA MODE',      footer:'◈  COMMAND CENTRAL  ◈  ALL SYSTEMS NOMINAL  ◈',                              starColor:'rgba(242,234,216,', starCount:180, falling:false, fireflies:false},
-  cyber:{btn:'◈ TIKI MODE',       footer:'// NEO-TOKYO CONTROL //  SYS:ONLINE  //  WARNING: MUTATION DETECTED //',       starColor:'rgba(255,120,50,',  starCount:90,  falling:true,  fireflies:false},
-  tiki: {btn:'◈ RETRO MODE',      footer:'✦  THE TIKI LOUNGE  ✦  ALL DRINKS NOMINAL  ✦  NO SHIRT NO SHOES NO PROBLEM', starColor:'rgba(255,180,60,',  starCount:60,  falling:false, fireflies:true }
+  retro:{btn:'◈ AKIRA MODE',      footer:'◈  COMMAND CENTRAL  ◈  ALL SYSTEMS NOMINAL  ◈',                               starColor:'rgba(242,234,216,', starCount:180, falling:false, fireflies:false},
+  cyber:{btn:'◈ TIKI MODE',       footer:'// NEO-TOKYO CONTROL //  SYS:ONLINE  //  WARNING: MUTATION DETECTED //',        starColor:'rgba(255,120,50,',  starCount:90,  falling:true,  fireflies:false},
+  tiki: {btn:'◈ BASS MODE',       footer:'✦  THE TIKI LOUNGE  ✦  ALL DRINKS NOMINAL  ✦  NO SHIRT NO SHOES NO PROBLEM',  starColor:'rgba(255,180,60,',  starCount:60,  falling:false, fireflies:true },
+  bass: {btn:'◈ RETRO MODE',      footer:'A  COMMAND CENTRAL  PRODUCTION  ·  MCMLXI  ·  ALL  RIGHTS  RESERVED',          starColor:'rgba(26,26,26,',    starCount:0,   falling:false, fireflies:false},
 };
 let currentTheme = localStorage.getItem('dashboard-theme') || 'retro';
 function applyTheme(theme) {
@@ -432,13 +595,13 @@ function applyTheme(theme) {
   document.getElementById('theme-btn').textContent   = t.btn;
   document.getElementById('footer-text').textContent = t.footer;
   const tl = document.getElementById('ticker-label');
-  if(tl) tl.textContent = theme==='tiki' ? '🌴 COCONUT TELEGRAPH' : '◈ NEWS';
+  if(tl) tl.textContent = theme==='tiki' ? '🌴 COCONUT TELEGRAPH' : theme==='bass' ? 'BULLETIN' : '◈ NEWS';
   localStorage.setItem('dashboard-theme', theme);
   initStars(t.starColor, t.starCount, t.falling, t.fireflies);
   drawMoon();
 }
 function toggleTheme() {
-  const order = ['retro','cyber','tiki'];
+  const order = ['retro','cyber','tiki','bass'];
   applyTheme(order[(order.indexOf(currentTheme) + 1) % order.length]);
 }
 
@@ -536,12 +699,13 @@ function drawMoon() {
   const R   = 23, cX = 26, cY = 26;
   const cyber = currentTheme === 'cyber';
   const tiki  = currentTheme === 'tiki';
+  const bass  = currentTheme === 'bass';
   cx.clearRect(0, 0, 52, 52);
 
   // Shadow side (dark disc)
   cx.beginPath();
   cx.arc(cX, cY, R, 0, Math.PI * 2);
-  cx.fillStyle = cyber ? '#160800' : tiki ? '#120600' : '#08141f';
+  cx.fillStyle = cyber ? '#160800' : tiki ? '#120600' : bass ? '#d8d0bc' : '#08141f';
   cx.fill();
 
   // Lit side
@@ -562,15 +726,15 @@ function drawMoon() {
     cx.arc(cX, cY, R, Math.PI/2, -Math.PI/2, false);
     cx.ellipse(cX, cY, R * xScale || 0.1, R, 0, -Math.PI/2, Math.PI/2, false);
   }
-  cx.fillStyle = cyber ? '#ff9040' : tiki ? '#ffd080' : '#f0deb0';
+  cx.fillStyle = cyber ? '#ff9040' : tiki ? '#ffd080' : bass ? '#1a1a1a' : '#f0deb0';
   cx.fill();
   cx.restore();
 
   // Rim
   cx.beginPath();
   cx.arc(cX, cY, R, 0, Math.PI * 2);
-  cx.strokeStyle = cyber ? 'rgba(255,100,0,.25)' : tiki ? 'rgba(212,97,42,.3)' : 'rgba(220,200,150,.2)';
-  cx.lineWidth = 1;
+  cx.strokeStyle = cyber ? 'rgba(255,100,0,.25)' : tiki ? 'rgba(212,97,42,.3)' : bass ? 'rgba(26,26,26,.3)' : 'rgba(220,200,150,.2)';
+  cx.lineWidth = bass ? 2 : 1;
   cx.stroke();
 
   document.getElementById('moon-phase-name').textContent = name;
@@ -781,7 +945,7 @@ function buildTicker(items) {
   // Measure rendered width then set animation
   requestAnimationFrame(() => {
     const halfW = track.scrollWidth / 2;
-    const duration = Math.max(60, halfW / 40); // ~40px per second
+    const duration = Math.max(60, halfW / 30); // ~30px per second
     track.style.animation = `none`;
     track.style.setProperty('--ticker-half', `${halfW}px`);
 
