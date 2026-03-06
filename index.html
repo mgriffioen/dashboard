@@ -445,27 +445,27 @@
 
 <!-- SAUL BASS GEOMETRIC BACKGROUND -->
 <div id="bass-geo">
-  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
     <!-- Large diagonal slash — top left -->
-    <polygon points="-60,0 180,0 80,100vh -60,100vh" fill="rgba(192,57,43,0.06)"/>
+    <polygon points="-60,0 180,0 80,900 -60,900" fill="rgba(192,57,43,0.06)"/>
     <!-- Bold red slash block -->
-    <polygon points="0,60% 60,55% 80,65% 0,70%" fill="rgba(192,57,43,0.07)"/>
+    <polygon points="0,540 60,495 80,585 0,630" fill="rgba(192,57,43,0.07)"/>
     <!-- Top right corner block -->
-    <rect x="75%" y="0" width="8%" height="35%" fill="rgba(26,26,26,0.04)"/>
+    <rect x="1080" y="0" width="115" height="315" fill="rgba(26,26,26,0.04)"/>
     <!-- Small red square accent -->
-    <rect x="82%" y="8%" width="4%" height="8%" fill="rgba(192,57,43,0.08)"/>
+    <rect x="1181" y="72" width="58" height="72" fill="rgba(192,57,43,0.08)"/>
     <!-- Bottom left rectangle -->
-    <rect x="0" y="78%" width="22%" height="5%" fill="rgba(26,26,26,0.04)"/>
-    <!-- Diagonal lines cluster — Bass spiral/motion signature -->
-    <line x1="55%" y1="0" x2="45%" y2="100%" stroke="rgba(26,26,26,0.04)" stroke-width="40"/>
-    <line x1="62%" y1="0" x2="52%" y2="100%" stroke="rgba(26,26,26,0.03)" stroke-width="20"/>
+    <rect x="0" y="702" width="317" height="45" fill="rgba(26,26,26,0.04)"/>
+    <!-- Diagonal lines cluster -->
+    <line x1="792" y1="0" x2="648" y2="900" stroke="rgba(26,26,26,0.04)" stroke-width="40"/>
+    <line x1="893" y1="0" x2="749" y2="900" stroke="rgba(26,26,26,0.03)" stroke-width="20"/>
     <!-- Bottom right triangle -->
-    <polygon points="100%,70% 100%,100% 72%,100%" fill="rgba(192,57,43,0.05)"/>
+    <polygon points="1440,630 1440,900 1037,900" fill="rgba(192,57,43,0.05)"/>
     <!-- Floating square mid-left -->
-    <rect x="5%" y="30%" width="6%" height="12%" fill="rgba(212,160,32,0.07)"/>
+    <rect x="72" y="270" width="86" height="108" fill="rgba(212,160,32,0.07)"/>
     <!-- Thin horizontal rule accent -->
-    <rect x="0" y="50%" width="18%" height="2px" fill="rgba(26,26,26,0.08)"/>
-    <rect x="82%" y="50%" width="18%" height="2px" fill="rgba(26,26,26,0.08)"/>
+    <rect x="0" y="450" width="259" height="2" fill="rgba(26,26,26,0.08)"/>
+    <rect x="1181" y="450" width="259" height="2" fill="rgba(26,26,26,0.08)"/>
   </svg>
 </div>
 
@@ -1003,8 +1003,8 @@ renderTodos();
    NEWS TICKER — AP + Reuters
 ═══════════════════════════════════════ */
 const RSS_FEEDS = [
-  { label:'AP',      url:'https://feeds.bbci.co.uk/news/world/rss.xml' }, // AP fallback via BBC World
-  { label:'REUTERS', url:'https://feeds.reuters.com/reuters/topNews' },
+  { label:'BBC',  url:'https://feeds.bbci.co.uk/news/world/rss.xml' },
+  { label:'NPR',  url:'https://feeds.npr.org/1001/rss.xml' },
 ];
 // We use rss2json.com as a CORS-friendly RSS proxy — free tier, no key needed
 const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
@@ -1077,9 +1077,9 @@ setInterval(loadTicker, 30 * 60 * 1000); // refresh every 30 min
    AMBIENT RADIO
 ═══════════════════════════════════════ */
 const RADIO_STREAMS = [
-  { name:'LO-FI HIP HOP',  url:'https://streams.zenolive.com/r3xwp5spdqquv' },
-  { name:'CHILLHOP RADIO',  url:'https://streams.zenolive.com/96c0dumyp3quv' },
-  { name:'JAZZ VIBES',      url:'https://streams.zenolive.com/vnmdnr5r7tquv' },
+  { name:'LO-FI HIP HOP',  url:'https://streams.fluxfm.de/Chillout/mp3-320/streams.fluxfm.de/' },
+  { name:'FIP · PARIS',    url:'https://icecast.radiofrance.fr/fip-midfi.mp3' },
+  { name:'JAZZ FM',        url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3' },
 ];
 let radioAudio = null, radioPlaying = false, radioIdx = 0, vizInterval = null;
 
