@@ -1077,48 +1077,70 @@ setInterval(loadTicker, 30 * 60 * 1000); // refresh every 30 min
    AMBIENT RADIO
 ═══════════════════════════════════════ */
 const RADIO_STREAMS = [
-  { name:'LO-FI HIP HOP',  url:'https://streams.fluxfm.de/Chillout/mp3-320/streams.fluxfm.de/' },
-  { name:'FIP · PARIS',    url:'https://icecast.radiofrance.fr/fip-midfi.mp3' },
-  { name:'JAZZ FM',        url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3' },
+  { name:'LOFI HIP HOP',    url:'https://playerservices.streamtheworld.com/api/livestream-redirect/LOFI_HIP_HOP.mp3' },
+  { name:'FIP · PARIS',     url:'https://icecast.radiofrance.fr/fip-midfi.mp3' },
+  { name:'JAZZ FM',         url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3' },
+  { name:'CHILLHOP',        url:'https://listen.moe/stream' },
+  { name:'AMBIENT',         url:'https://ice6.somafm.com/dronezone-128-mp3' },
+  { name:'GROOVE SALAD',    url:'https://ice6.somafm.com/groovesalad-128-mp3' },
 ];
-let radioAudio = null, radioPlaying = false, radioIdx = 0, vizInterval = null;
+let radioAudio = null, radioPlaying = false, radioIdx = 0, vizInterval = null, radioTrying = false;
 
 function toggleRadio() {
   if (radioPlaying) {
     radioAudio.pause();
     radioPlaying = false;
+    radioTrying = false;
     document.getElementById('radio-play-btn').textContent = '▶';
     document.getElementById('radio-now').textContent = 'Press play to tune in';
     stopViz();
   } else {
-    startRadio();
+    radioIdx = 0;
+    tryStream();
   }
 }
 
-function startRadio() {
-  if (!radioAudio) {
-    radioAudio = new Audio();
-    radioAudio.crossOrigin = 'anonymous';
-    radioAudio.volume = parseFloat(document.getElementById('radio-vol').value);
-    radioAudio.onerror = () => {
-      // Try next stream on error
-      radioIdx = (radioIdx + 1) % RADIO_STREAMS.length;
-      radioAudio.src = RADIO_STREAMS[radioIdx].url;
-      document.getElementById('radio-station-name').textContent = RADIO_STREAMS[radioIdx].name;
-      radioAudio.play().catch(()=>{});
-    };
+function tryStream() {
+  if (radioIdx >= RADIO_STREAMS.length) {
+    document.getElementById('radio-play-btn').textContent = '▶';
+    document.getElementById('radio-now').textContent = '⚠ No streams available';
+    radioTrying = false;
+    return;
   }
   const stream = RADIO_STREAMS[radioIdx];
-  radioAudio.src = stream.url;
   document.getElementById('radio-station-name').textContent = stream.name;
   document.getElementById('radio-now').textContent = 'Connecting…';
-  radioAudio.play().then(() => {
+  document.getElementById('radio-play-btn').textContent = '…';
+
+  if (radioAudio) { radioAudio.pause(); radioAudio.src = ''; }
+  radioAudio = new Audio(stream.url);
+  radioAudio.crossOrigin = 'anonymous';
+  radioAudio.volume = parseFloat(document.getElementById('radio-vol').value);
+
+  const timeout = setTimeout(() => {
+    // If not playing after 6s, try next
+    if (!radioPlaying) { radioIdx++; tryStream(); }
+  }, 6000);
+
+  radioAudio.addEventListener('playing', () => {
+    clearTimeout(timeout);
     radioPlaying = true;
+    radioTrying = false;
     document.getElementById('radio-play-btn').textContent = '⏸';
     document.getElementById('radio-now').textContent = '◈ Live';
     startViz();
-  }).catch(() => {
-    document.getElementById('radio-now').textContent = 'Stream unavailable';
+  }, { once: true });
+
+  radioAudio.addEventListener('error', () => {
+    clearTimeout(timeout);
+    radioIdx++;
+    tryStream();
+  }, { once: true });
+
+  radioAudio.play().catch(() => {
+    clearTimeout(timeout);
+    radioIdx++;
+    tryStream();
   });
 }
 
