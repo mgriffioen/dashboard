@@ -863,8 +863,9 @@ let countdowns=JSON.parse(localStorage.getItem('cd_events')||'[]');
 function saveCountdowns(){localStorage.setItem('cd_events',JSON.stringify(countdowns));}
 function renderCountdowns(){
   const list=document.getElementById('countdown-list');
-  if(!countdowns.length){list.innerHTML='<div style="font-family:var(--mono-font);font-size:.65rem;color:var(--dim);font-style:italic;">No missions scheduled.</div>';return;}
-  list.innerHTML=countdowns.map((cd,i)=>`<div class="countdown-item" id="cd-item-${i}"><div class="countdown-name">${cd.name}</div><div class="countdown-digits" id="cd-digits-${i}"></div><button class="countdown-delete" onclick="deleteCountdown(${i})">✕</button></div>`).join('');
+  const sorted=[...countdowns].map((cd,i)=>({...cd,i})).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(!sorted.length){list.innerHTML='<div style="font-family:var(--mono-font);font-size:.65rem;color:var(--dim);font-style:italic;">No missions scheduled.</div>';return;}
+  list.innerHTML=sorted.map((cd)=>`<div class="countdown-item" id="cd-item-${cd.i}"><div class="countdown-name">${cd.name}</div><div class="countdown-digits" id="cd-digits-${cd.i}"></div><button class="countdown-delete" onclick="deleteCountdown(${cd.i})">✕</button></div>`).join('');
   updateCountdownTimes();
 }
 function updateCountdownTimes(){
@@ -958,7 +959,7 @@ function buildTicker(items) {
   // Measure rendered width then set animation
   requestAnimationFrame(() => {
     const halfW = track.scrollWidth / 2;
-    const duration = Math.max(60, halfW / 25); // ~25px per second
+    const duration = Math.max(60, halfW / 80); // ~80px per second
     track.style.animation = `none`;
     track.style.setProperty('--ticker-half', `${halfW}px`);
 
