@@ -891,12 +891,7 @@ function loadToken() {
     await gapi.client.init({});
     await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
     gapiReady=true;
-    // Restore cached token if valid
-    const cached = loadToken();
-    if(cached) {
-      gapi.client.setToken(cached);
-      fetchCalEvents();
-    }
+    tryRestoreToken();
   });};
   document.head.appendChild(s1);
   const s2=document.createElement('script');s2.src='https://accounts.google.com/gsi/client';
@@ -908,9 +903,18 @@ function loadToken() {
       saveToken(resp);
       await fetchCalEvents();
     }
-  });gisReady=true;};
+  });gisReady=true;
+  tryRestoreToken();
+  };
   document.head.appendChild(s2);
 })();
+
+// Called by both scripts on load — only proceeds once both are ready
+function tryRestoreToken(){
+  if(!gapiReady||!gisReady) return;
+  const cached = loadToken();
+  if(cached){ gapi.client.setToken(cached); fetchCalEvents(); }
+}
 
 function connectGCal(){
   if(!GCAL_CLIENT_ID||GCAL_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID_HERE'){alert('Please add your Google Client ID first.');return;}
@@ -918,7 +922,8 @@ function connectGCal(){
     if(!gapiReady||!gisReady){setTimeout(tryConnect,200);return;}
     const cached = loadToken();
     if(cached){gapi.client.setToken(cached);fetchCalEvents();return;}
-    tokenClient.requestAccessToken({prompt:'consent'});
+    // Use empty prompt so Google only shows consent if not previously granted
+    tokenClient.requestAccessToken({prompt:''});
   };
   tryConnect();
 }
