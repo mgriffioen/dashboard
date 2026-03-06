@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
   <title>COMMAND CENTRAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&family=Josefin+Sans:wght@300;400;600&family=Orbitron:wght@400;700;900&family=Pacifico&family=Special+Elite&family=Josefin+Slab:wght@300;400;600&family=League+Spartan:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
@@ -816,19 +819,58 @@ let calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calEvents=[]
 const GCAL_CLIENT_ID='515127802289-tqi63shs6dvl19ds7jcaan6vhs3c8054.apps.googleusercontent.com';
 const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
 let tokenClient,gapiReady=false,gisReady=false;
+
+function saveToken(token) {
+  if(!token) return;
+  const expiry = Date.now() + (token.expires_in || 3600) * 1000;
+  localStorage.setItem('gcal_token', JSON.stringify({...token, expiry}));
+}
+function loadToken() {
+  try {
+    const t = JSON.parse(localStorage.getItem('gcal_token')||'null');
+    if(t && t.expiry && Date.now() < t.expiry - 60000) return t; // valid if >1min left
+  } catch(e){}
+  return null;
+}
+
 (function loadGoogleScripts(){
   const s1=document.createElement('script');s1.src='https://apis.google.com/js/api.js';
-  s1.onload=()=>{gapi.load('client',async()=>{await gapi.client.init({});await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');gapiReady=true;});};
+  s1.onload=()=>{gapi.load('client',async()=>{
+    await gapi.client.init({});
+    await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
+    gapiReady=true;
+    // Restore cached token if valid
+    const cached = loadToken();
+    if(cached) {
+      gapi.client.setToken(cached);
+      fetchCalEvents();
+    }
+  });};
   document.head.appendChild(s1);
   const s2=document.createElement('script');s2.src='https://accounts.google.com/gsi/client';
-  s2.onload=()=>{tokenClient=google.accounts.oauth2.initTokenClient({client_id:GCAL_CLIENT_ID,scope:GCAL_SCOPE,callback:async(resp)=>{if(resp.error){console.error(resp);return;}await fetchCalEvents();}});gisReady=true;};
+  s2.onload=()=>{tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:GCAL_CLIENT_ID,
+    scope:GCAL_SCOPE,
+    callback:async(resp)=>{
+      if(resp.error){console.error(resp);return;}
+      saveToken(resp);
+      await fetchCalEvents();
+    }
+  });gisReady=true;};
   document.head.appendChild(s2);
 })();
+
 function connectGCal(){
   if(!GCAL_CLIENT_ID||GCAL_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID_HERE'){alert('Please add your Google Client ID first.');return;}
-  const tryConnect=()=>{if(!gapiReady||!gisReady){setTimeout(tryConnect,200);return;}if(gapi.client.getToken()){fetchCalEvents();return;}tokenClient.requestAccessToken({prompt:'consent'});};
+  const tryConnect=()=>{
+    if(!gapiReady||!gisReady){setTimeout(tryConnect,200);return;}
+    const cached = loadToken();
+    if(cached){gapi.client.setToken(cached);fetchCalEvents();return;}
+    tokenClient.requestAccessToken({prompt:'consent'});
+  };
   tryConnect();
 }
+
 async function fetchCalEvents(){
   try{
     const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1).toISOString(),end=new Date(now.getFullYear(),now.getMonth()+2,0).toISOString();
@@ -837,7 +879,12 @@ async function fetchCalEvents(){
     document.getElementById('cal-status').style.display='none';
     document.getElementById('cal-container').style.display='block';
     renderCalendar();
-  }catch(e){console.error('Calendar fetch error:',e);showCalPlaceholder();}
+  }catch(e){
+    // Token may be expired — clear it and show connect button
+    localStorage.removeItem('gcal_token');
+    console.error('Calendar fetch error:',e);
+    showCalPlaceholder();
+  }
 }
 function showCalPlaceholder(){calEvents=[];document.getElementById('cal-status').style.display='none';document.getElementById('cal-container').style.display='block';renderCalendar();}
 function renderCalendar(){
