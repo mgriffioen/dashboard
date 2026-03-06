@@ -366,10 +366,11 @@
     .countdown-delete{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:.8rem;opacity:.4;transition:opacity .2s;}
     .countdown-delete:hover{opacity:1;color:var(--danger);}
     .add-countdown{display:flex;flex-direction:column;gap:8px;margin-top:10px;border-top:1px solid var(--card-border);padding-top:12px;}
-    .add-countdown input{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);font-family:var(--mono-font);font-size:.72rem;padding:7px 10px;outline:none;transition:border-color .2s;}
+    .add-countdown-row{display:flex;gap:8px;}
+    .add-countdown input{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);font-family:var(--mono-font);font-size:.72rem;padding:7px 10px;outline:none;transition:border-color .2s;flex:1;}
     .add-countdown input:focus{border-color:var(--input-border-focus);}
     .add-countdown input::placeholder{color:var(--dim);opacity:.6;}
-    .add-countdown button{background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--accent);font-family:var(--mono-font);font-size:.62rem;letter-spacing:.15em;padding:7px;cursor:pointer;transition:background .2s;}
+    .add-countdown button{background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--accent);font-family:var(--mono-font);font-size:.62rem;letter-spacing:.15em;padding:7px;cursor:pointer;transition:background .2s;width:100%;}
     .add-countdown button:hover{background:var(--btn-hover);}
 
     /* ── TODO ── */
@@ -571,8 +572,10 @@
       <div class="card-label">◉ Countdowns</div>
       <div class="countdown-list" id="countdown-list"></div>
       <div class="add-countdown">
-        <input type="text" id="cd-name" placeholder="Event name…" maxlength="40"/>
-        <input type="datetime-local" id="cd-date"/>
+        <div class="add-countdown-row">
+          <input type="text" id="cd-name" placeholder="Event name…" maxlength="40"/>
+          <input type="datetime-local" id="cd-date"/>
+        </div>
         <button onclick="addCountdown()">⊕ &nbsp; ADD COUNTDOWN</button>
       </div>
     </div>
