@@ -874,8 +874,8 @@ function updateCountdownTimes(){
     const el=document.getElementById(`cd-digits-${i}`);if(!el)return;
     const diff=Math.max(0,new Date(cd.date)-now);
     if(!diff){el.innerHTML='<div style="font-family:var(--mono-font);font-size:.7rem;color:var(--accent)">MISSION REACHED</div>';return;}
-    const dv=Math.floor(diff/864e5),hv=Math.floor((diff%864e5)/36e5),mv=Math.floor((diff%36e5)/6e4),sv=Math.floor((diff%6e4)/1e3);
-    el.innerHTML=[{n:dv,l:'DAYS'},{n:hv,l:'HRS'},{n:mv,l:'MIN'},{n:sv,l:'SEC'}].map((u,j)=>`<div class="countdown-unit"><div class="countdown-num">${String(u.n).padStart(2,'0')}</div><span class="countdown-lbl">${u.l}</span></div>${j<3?'<div class="countdown-sep">:</div>':''}`).join('');
+    const dv=Math.floor(diff/864e5),hv=Math.floor((diff%864e5)/36e5);
+    el.innerHTML=[{n:dv,l:'DAYS'},{n:hv,l:'HRS'}].map((u,j)=>`<div class="countdown-unit"><div class="countdown-num">${String(u.n).padStart(2,'0')}</div><span class="countdown-lbl">${u.l}</span></div>${j<1?'<div class="countdown-sep">:</div>':''}`).join('');
   });
 }
 function addCountdown(){const n=document.getElementById('cd-name').value.trim(),d=document.getElementById('cd-date').value;if(!n||!d)return;countdowns.push({name:n,date:d});saveCountdowns();renderCountdowns();document.getElementById('cd-name').value='';document.getElementById('cd-date').value='';}
