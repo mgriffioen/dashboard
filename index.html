@@ -1117,7 +1117,7 @@ function nextStation() {
     const stream = RADIO_STREAMS[radioIdx];
     document.getElementById('radio-station-name').textContent = stream.name;
   }
-}
+
   if (radioIdx >= RADIO_STREAMS.length) {
     document.getElementById('radio-play-btn').textContent = '▶';
     document.getElementById('radio-now').textContent = '⚠ No streams available';
