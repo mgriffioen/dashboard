@@ -193,8 +193,8 @@
       letter-spacing:-.02em;
       animation:none;
     }
-    [data-theme="bass"] #clock-seconds{color:#c0392b;}
-    [data-theme="bass"] #clock-day{color:#c0392b;letter-spacing:.25em;}
+    
+    
     [data-theme="bass"] #clock-date{font-style:normal;font-weight:700;color:#1a1a1a;letter-spacing:.08em;}
 
     /* Weather — no emoji glow */
@@ -296,10 +296,10 @@
     #clock-time{font-family:var(--clock-font);font-size:clamp(3.2rem,8vw,4.8rem);color:var(--accent2);letter-spacing:.06em;line-height:1;text-shadow:0 0 30px var(--glow-color);display:block;transition:color .6s,text-shadow .6s,font-family .01s;}
     [data-theme="cyber"] #clock-time{letter-spacing:.03em;animation:cyber-pulse 3s ease-in-out infinite;}
     @keyframes cyber-pulse{0%,100%{text-shadow:0 0 20px rgba(255,106,0,.6),0 0 60px rgba(255,69,0,.2);}50%{text-shadow:0 0 35px rgba(255,106,0,.9),0 0 80px rgba(255,69,0,.45),0 0 130px rgba(255,40,0,.1);}}
-    #clock-seconds{font-family:var(--mono-font);font-size:.85rem;color:var(--accent);opacity:.7;display:block;margin-top:2px;transition:color .6s;}
+    
     #clock-date{font-family:var(--date-font);font-style:italic;font-size:1.05rem;color:var(--text);margin-top:8px;opacity:.85;transition:color .6s,font-family .01s;}
     [data-theme="cyber"] #clock-date{font-style:normal;font-size:.78rem;letter-spacing:.12em;}
-    #clock-day{font-family:var(--clock-font);font-size:1.1rem;letter-spacing:.2em;color:var(--danger);margin-top:2px;transition:color .6s,font-family .01s;}
+    
 
     /* ── MOON ── */
     .moon-section{display:flex;align-items:center;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--card-border);}
@@ -530,7 +530,9 @@
       <div class="card-label">◉ Local Time</div>
       <div class="clock-face">
         <span id="clock-time">00:00</span>
+        
         <div id="clock-date">January 1st, 2025</div>
+        
       </div>
       <div class="moon-section">
         <canvas id="moon-canvas" width="52" height="52"></canvas>
@@ -727,14 +729,14 @@ function updateClock() {
   const now=new Date(), raw=now.getHours();
   const h=String(raw%12||12).padStart(2,'0'), m=String(now.getMinutes()).padStart(2,'0'), s=String(now.getSeconds()).padStart(2,'0');
   document.getElementById('clock-time').textContent    = `${h}:${m}`;
-  document.getElementById('clock-seconds').textContent = `:${s} ${raw<12?'AM':'PM'}`;
+  
   const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MOS=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const d=now.getDate(), sfx=['th','st','nd','rd'][(d%10<4&&Math.floor(d/10)!==1)?d%10:0]||'th';
   document.getElementById('clock-date').textContent = currentTheme==='cyber'
     ? `${String(now.getMonth()+1).padStart(2,'0')}.${String(d).padStart(2,'0')}.${now.getFullYear()}`
     : `${MOS[now.getMonth()]} ${d}${sfx}, ${now.getFullYear()}`;
-  document.getElementById('clock-day').textContent = DAYS[now.getDay()].toUpperCase();
+  
 }
 setInterval(updateClock, 1000);
 updateClock();
